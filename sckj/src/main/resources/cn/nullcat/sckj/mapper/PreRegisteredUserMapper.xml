@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.nullcat.sckj.mapper.PreRegisteredUserMapper">
+
+    <select id="getAll" resultType="cn.nullcat.sckj.pojo.PreregisteredUser">
+        SELECT p.*
+        FROM preregistered_user p
+        <where>
+            <if test="username != null"> AND p.username LIKE CONCAT('%', #{username}, '%') </if>
+            <if test="begin != null and end != null"> AND p.registration_date BETWEEN #{begin} AND #{end} </if>
+        </where>
+        ORDER BY p.registration_date DESC
+    </select>
+
+
+</mapper>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.nullcat.sckj.mapper.AttendanceMapper">
+    <select id="allRecord" resultType="cn.nullcat.sckj.pojo.Attendance">
+        SELECT a.*
+        FROM attendance a
+        <where>
+            <if test="username != null"> AND a.user_id IN (SELECT id FROM users WHERE username LIKE CONCAT('%', #{username}, '%')) </if>
+            <if test="groupName != null"> AND a.group_id IN (SELECT id FROM groups WHERE group_name LIKE CONCAT('%', #{groupName}, '%')) </if>
+            <if test="begin != null and end != null"> AND a.check_in BETWEEN #{begin} AND #{end} </if>
+        </where>
+        ORDER BY a.check_in DESC
+    </select>
+    <select id="myRecord" resultType="cn.nullcat.sckj.pojo.Attendance">
+        select * from attendance
+        <where>
+            user_id = #{userIdNow}
+            <if test="begin != null and end != null">
+                and check_in between #{begin} and #{end}
+            </if>
+        </where>
+        order by check_in desc
+    </select>
+    <select id="groupRecord" resultType="cn.nullcat.sckj.pojo.Attendance">
+        SELECT * FROM attendance
+        <where>
+            <if test="groupIdNow != null">AND group_id = #{groupIdNow}</if>
+            <if test="begin != null and end != null">AND check_in BETWEEN #{begin} AND #{end}</if>
+        </where>
+        ORDER BY check_in DESC
+    </select>
+
+
+</mapper>
