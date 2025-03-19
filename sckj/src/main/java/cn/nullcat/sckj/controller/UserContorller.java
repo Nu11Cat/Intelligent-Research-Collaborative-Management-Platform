@@ -149,6 +149,18 @@ public class UserContorller {
         return Result.success("身份修改成功");
     }
 
+    /**
+     * 查看全部用户
+     * @param page
+     * @param pageSize
+     * @param username
+     * @param role
+     * @param groupName
+     * @param begin
+     * @param end
+     * @param request
+     * @return
+     */
     @GetMapping("/getAll")
     public Result getAll(@RequestParam(defaultValue = "1") Integer page,
                          @RequestParam(defaultValue = "10") Integer pageSize,
@@ -163,5 +175,17 @@ public class UserContorller {
         log.info("人员分页条件查询:{},{},{},{},{},{},{}", page, pageSize, username,role,groupName, begin, end);
         PageBean pageBean = userservice.getAll(page, pageSize, username,role,groupName, begin, end);
         return Result.success(pageBean);
+    }
+
+    /**
+     *
+     * 根据id查修信息
+     * @param userId
+     * @return
+     */
+    @GetMapping("/getById/{userId}")
+    public Result getById(@PathVariable Integer userId) {
+        UserVO userVO = userservice.getById(userId);
+        return Result.success(userVO);
     }
 }

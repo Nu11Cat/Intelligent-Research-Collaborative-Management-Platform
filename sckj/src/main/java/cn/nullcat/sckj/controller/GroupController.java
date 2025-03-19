@@ -1,9 +1,11 @@
 package cn.nullcat.sckj.controller;
 
+import cn.nullcat.sckj.pojo.DTO.GroupDTO;
 import cn.nullcat.sckj.pojo.Group;
 import cn.nullcat.sckj.pojo.PageBean;
 import cn.nullcat.sckj.pojo.Result;
 import cn.nullcat.sckj.service.GroupService;
+import cn.nullcat.sckj.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -17,6 +19,8 @@ import java.time.LocalDate;
 public class GroupController {
     @Autowired
     private GroupService groupService;
+    @Autowired
+    private UserService userService;
 
     /**
      * 添加
@@ -59,17 +63,29 @@ public class GroupController {
     }
     /**
      * 更新
-     * @param group
+     * @param groupDTO
      * @return
      */
     @PostMapping("/update")
-    public Result edit(@RequestBody Group group) {
-        String name = group.getName();
-        Group existingGroup = groupService.getById(String.valueOf(group.getId()));
+    public Result edit(@RequestBody GroupDTO groupDTO) {
+        String name = groupDTO.getName();
+        Group existingGroup = groupService.getById(String.valueOf(groupDTO.getId()));
         if(!existingGroup.getName().equals(name) && groupService.getByGruopName(name)){
             return Result.error("该组已经存在");
         }
-        groupService.update(group);
+        String  leaderAName = groupDTO.getAdminAName();
+        String leaderBName = groupDTO.getAdminBName();
+        String leaderCName = groupDTO.getAdminCName();
+        if(leaderAName != null && !leaderAName.trim().isEmpty() && !userService.exist(leaderAName)){
+            return Result.error("用户不存在");
+        }
+        if(leaderBName != null && !leaderBName.trim().isEmpty() && !userService.exist(leaderBName)){
+            return Result.error("用户不存在");
+        }
+        if(leaderCName != null && !leaderCName.trim().isEmpty() && !userService.exist(leaderCName)){
+            return Result.error("用户不存在");
+        }
+        groupService.update(groupDTO);
         return Result.success("修改成功");
     }
 

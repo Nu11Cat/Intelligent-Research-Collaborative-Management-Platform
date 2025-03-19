@@ -28,9 +28,8 @@
         a.id as userId,
         a.group_id as groupId,
         a.username as userName,
-        g.group_name as groupName,
-        a.check_in as checkIn,
-        a.check_out as checkOut
+        g.name as groupName,
+        a.created_at as createdAt
         FROM users a
         LEFT JOIN user_groups g ON a.group_id = g.id
         <where>
@@ -38,13 +37,13 @@
                 AND a.username LIKE CONCAT('%', #{username}, '%')
             </if>
             <if test="groupName != null">
-                AND g.group_name LIKE CONCAT('%', #{groupName}, '%')
+                AND g.name LIKE CONCAT('%', #{groupName}, '%')
             </if>
             <if test="begin != null and end != null">
-                AND DATE(a.check_in) BETWEEN #{begin} AND #{end}
+                AND DATE(a.created_at) BETWEEN #{begin} AND #{end}
             </if>
         </where>
-        ORDER BY a.check_in DESC
+        ORDER BY a.created_at DESC
     </select>
 
 

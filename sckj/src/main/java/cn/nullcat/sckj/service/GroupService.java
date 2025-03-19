@@ -1,5 +1,6 @@
 package cn.nullcat.sckj.service;
 
+import cn.nullcat.sckj.pojo.DTO.GroupDTO;
 import cn.nullcat.sckj.pojo.Group;
 import cn.nullcat.sckj.pojo.PageBean;
 
@@ -35,9 +36,9 @@ public interface GroupService {
 
     /**
      * 修改小组信息
-     * @param group
+     * @param groupDTO
      */
-    void update(Group group);
+    void update(GroupDTO groupDTO);
 
     /**
      * 条件分夜查询

@@ -2,9 +2,11 @@ package cn.nullcat.sckj.service.Impl;
 
 import cn.nullcat.sckj.mapper.GroupMapper;
 import cn.nullcat.sckj.pojo.Attendance;
+import cn.nullcat.sckj.pojo.DTO.GroupDTO;
 import cn.nullcat.sckj.pojo.Group;
 import cn.nullcat.sckj.pojo.PageBean;
 import cn.nullcat.sckj.service.GroupService;
+import cn.nullcat.sckj.service.UserService;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +20,8 @@ import java.util.List;
 public class GroupServiceImpl implements GroupService {
     @Autowired
     private GroupMapper groupMapper;
+    @Autowired
+    private UserService userService;
 
     /**
      *
@@ -62,18 +66,23 @@ public class GroupServiceImpl implements GroupService {
 
     /**
      * 编辑小组
-     * @param group
+     * @param groupDTO
      */
     @Override
-    public void update(Group group) {
-        Integer id = group.getId();
-        String name = group.getName();
-        String description = group.getDescription();
+    public void update(GroupDTO groupDTO) {
+        Integer id = groupDTO.getId();
+        String name = groupDTO.getName();
+        String description = groupDTO.getDescription();
+        String  leaderAName = groupDTO.getAdminAName();
+        Integer leaderA = userService.getUserIdByUsername(leaderAName);
+        userService.changeRole(leaderA);
+        String leaderBName = groupDTO.getAdminBName();
+        Integer leaderB = userService.getUserIdByUsername(leaderBName);
+        userService.changeRole(leaderB);
+        String leaderCName = groupDTO.getAdminCName();
+        Integer leaderC = userService.getUserIdByUsername(leaderCName);
+        userService.changeRole(leaderC);
         LocalDateTime now = LocalDateTime.now();
-        Integer leaderA = group.getAdminA();
-        Integer leaderB = group.getAdminB();
-        Integer leaderC = group.getAdminC();
-
         groupMapper.update(id,name,description,leaderA,leaderB,leaderC,now);
     }
 
