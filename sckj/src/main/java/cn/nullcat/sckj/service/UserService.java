@@ -1,9 +1,12 @@
 package cn.nullcat.sckj.service;
 
 import cn.nullcat.sckj.pojo.DTO.UserFormDTO;
+import cn.nullcat.sckj.pojo.PageBean;
 import cn.nullcat.sckj.pojo.VO.UserVO;
 import org.apache.ibatis.annotations.Select;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
 
 public interface UserService {
     /**
@@ -78,4 +81,17 @@ public interface UserService {
      * @param id
      */
     void changeRole(Integer id);
+
+    /**
+     * 条件分页查询全部用户
+     * @param page
+     * @param pageSize
+     * @param username
+     * @param role
+     * @param groupName
+     * @param begin
+     * @param end
+     * @return
+     */
+    PageBean getAll(Integer page, Integer pageSize, String username, String role, String groupName, LocalDate begin, LocalDate end);
 }

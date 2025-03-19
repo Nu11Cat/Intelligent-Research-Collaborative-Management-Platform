@@ -2,10 +2,7 @@ package cn.nullcat.sckj.mapper;
 
 import cn.nullcat.sckj.pojo.Group;
 import cn.nullcat.sckj.pojo.PreregisteredUser;
-import org.apache.ibatis.annotations.Delete;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -55,4 +52,19 @@ public interface PreRegisteredUserMapper {
      * @return
      */
     List<PreregisteredUser> getAll(String username, LocalDate begin, LocalDate end);
+
+    /**
+     * 根据用户名字查询用户小组
+     * @param username
+     * @return
+     */
+    @Select("select group_id from pre_registered_users where username = #{username}")
+    Integer getGroupIdByUserName(String username);
+
+    /**
+     * 修改用户注册状态
+     * @param username
+     */
+    @Update("UPDATE pre_registered_users SET `status` = '已注册' WHERE username = #{username}")
+    void chagneRegisteredStatus(String username);
 }

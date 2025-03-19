@@ -6,12 +6,12 @@
 
     <select id="getAll" resultType="cn.nullcat.sckj.pojo.PreregisteredUser">
         SELECT p.*
-        FROM preregistered_user p
+        FROM pre_registered_users p
         <where>
             <if test="username != null"> AND p.username LIKE CONCAT('%', #{username}, '%') </if>
-            <if test="begin != null and end != null"> AND p.registration_date BETWEEN #{begin} AND #{end} </if>
+            <if test="begin != null and end != null"> AND p.created_at BETWEEN #{begin} AND #{end} </if>
         </where>
-        ORDER BY p.registration_date DESC
+        ORDER BY p.created_at DESC
     </select>
 
 

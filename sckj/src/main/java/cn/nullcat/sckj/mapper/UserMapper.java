@@ -5,6 +5,9 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
+import java.time.LocalDate;
+import java.util.List;
+
 @Mapper
 public interface UserMapper {
     /**
@@ -93,4 +96,14 @@ public interface UserMapper {
      */
     @Update("UPDATE users SET role = 'LEADER' WHERE id = #{id}")
     void changeRole(Integer id);
+
+    /**
+     * 查询全部信息
+     * @param username
+     * @param groupName
+     * @param begin
+     * @param end
+     * @return
+     */
+    List<Users> getAll(String username, String groupName, LocalDate begin, LocalDate end);
 }

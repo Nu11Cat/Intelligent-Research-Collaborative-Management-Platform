@@ -23,7 +23,29 @@
             <if test="updatedAt != null">#{updatedAt},</if>
         </trim>
     </insert>
-
+    <select id="getAll" resultType="cn.nullcat.sckj.pojo.Users">
+        SELECT
+        a.id as userId,
+        a.group_id as groupId,
+        a.username as userName,
+        g.group_name as groupName,
+        a.check_in as checkIn,
+        a.check_out as checkOut
+        FROM users a
+        LEFT JOIN user_groups g ON a.group_id = g.id
+        <where>
+            <if test="username != null">
+                AND a.username LIKE CONCAT('%', #{username}, '%')
+            </if>
+            <if test="groupName != null">
+                AND g.group_name LIKE CONCAT('%', #{groupName}, '%')
+            </if>
+            <if test="begin != null and end != null">
+                AND DATE(a.check_in) BETWEEN #{begin} AND #{end}
+            </if>
+        </where>
+        ORDER BY a.check_in DESC
+    </select>
 
 
 

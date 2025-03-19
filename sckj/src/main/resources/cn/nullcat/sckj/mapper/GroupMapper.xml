@@ -5,12 +5,12 @@
 <mapper namespace="cn.nullcat.sckj.mapper.GroupMapper">
     <select id="getAll" resultType="cn.nullcat.sckj.pojo.Group">
         SELECT g.*
-        FROM groups g
+        FROM user_groups g
         <where>
-            <if test="name != null"> AND g.group_name LIKE CONCAT('%', #{name}, '%') </if>
-            <if test="begin != null and end != null"> AND g.creation_date BETWEEN #{begin} AND #{end} </if>
+            <if test="name != null"> AND g.name LIKE CONCAT('%', #{name}, '%') </if>
+            <if test="begin != null and end != null"> AND g.created_at BETWEEN #{begin} AND #{end} </if>
         </where>
-        ORDER BY g.creation_date DESC
+        ORDER BY g.created_at DESC
     </select>
 
 </mapper>

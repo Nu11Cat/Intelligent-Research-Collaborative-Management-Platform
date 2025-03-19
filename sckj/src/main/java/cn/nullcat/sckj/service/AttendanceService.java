@@ -38,12 +38,11 @@ public interface AttendanceService {
      * @param page
      * @param pageSize
      * @param username
-     * @param groupName
      * @param begin
      * @param end
      * @return
      */
-    PageBean allRecords(Integer page, Integer pageSize, String username, String groupName, LocalDate begin, LocalDate end);
+    PageBean allRecords(Integer page, Integer pageSize, String username, String groupName,LocalDate begin, LocalDate end);
 
     /**
      * 获取个人考勤记录 分页条件查询
@@ -66,4 +65,5 @@ public interface AttendanceService {
      * @return
      */
     PageBean groupRecords(Integer page, Integer pageSize, Integer groupIdNow, LocalDate begin, LocalDate end);
+
 }

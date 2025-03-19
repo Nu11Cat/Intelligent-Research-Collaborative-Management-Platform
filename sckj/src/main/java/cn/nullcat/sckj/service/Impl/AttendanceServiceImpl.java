@@ -33,7 +33,7 @@ public class AttendanceServiceImpl implements AttendanceService {
         Integer userId = userIdNow;
         Integer groupId = userService.getGroupIdByUserId(userIdNow);
         LocalDateTime time = LocalDateTime.now();
-        Users users = attendanceMapper.getBySignIn(userId,groupId,time);
+        Attendance users = attendanceMapper.getBySignIn(userId,groupId,time);
         return users != null;
     }
 
@@ -47,8 +47,7 @@ public class AttendanceServiceImpl implements AttendanceService {
         Integer groupId = userService.getGroupIdByUserId(userIdNow);
         LocalDateTime time = LocalDateTime.now();
         String userName = userService.getUsernameById(userIdNow);
-        String groupName = userService.getGroupnameById(userIdNow);
-        attendanceMapper.add(userId,groupId,time,userName,groupName);
+        attendanceMapper.add(userId,groupId,time,userName);
     }
 
     /**
@@ -60,7 +59,7 @@ public class AttendanceServiceImpl implements AttendanceService {
     public boolean signedOut(Integer userIdNow) {
         Integer userId = userIdNow;
         LocalDateTime time = LocalDateTime.now();
-        Users users = attendanceMapper.getBySignOut(userId,time);
+        Attendance users = attendanceMapper.getBySignOut(userId,time);
         return users == null;
     }
 
@@ -80,15 +79,14 @@ public class AttendanceServiceImpl implements AttendanceService {
      * @param page
      * @param pageSize
      * @param username
-     * @param groupName
      * @param begin
      * @param end
      * @return
      */
     @Override
-    public PageBean allRecords(Integer page, Integer pageSize, String username, String groupName, LocalDate begin, LocalDate end) {
+    public PageBean allRecords(Integer page, Integer pageSize, String username, String groupName,LocalDate begin, LocalDate end) {
         PageHelper.startPage(page, pageSize);
-        List<Attendance> list = attendanceMapper.allRecord(username, groupName,begin, end);
+        List<Attendance> list = attendanceMapper.allRecord(username,groupName,begin, end);
         Page<Attendance> p = (Page<Attendance>) list;
 
         PageBean pageBean = new PageBean(p.getTotal(), p.getResult());
@@ -131,4 +129,5 @@ public class AttendanceServiceImpl implements AttendanceService {
         PageBean pageBean = new PageBean(p.getTotal(), p.getResult());
         return pageBean;
     }
+
 }

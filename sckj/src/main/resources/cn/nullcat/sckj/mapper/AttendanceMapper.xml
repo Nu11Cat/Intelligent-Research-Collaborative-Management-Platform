@@ -4,32 +4,56 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="cn.nullcat.sckj.mapper.AttendanceMapper">
     <select id="allRecord" resultType="cn.nullcat.sckj.pojo.Attendance">
-        SELECT a.*
+        SELECT
+        a.id,
+        a.user_id as userId,
+        a.group_id as groupId,
+        a.username as userName,
+        a.check_in as checkIn,
+        a.check_out as checkOut,
+        g.name as groupName
         FROM attendance a
+        LEFT JOIN user_groups g ON a.group_id = g.id
         <where>
-            <if test="username != null"> AND a.user_id IN (SELECT id FROM users WHERE username LIKE CONCAT('%', #{username}, '%')) </if>
-            <if test="groupName != null"> AND a.group_id IN (SELECT id FROM groups WHERE group_name LIKE CONCAT('%', #{groupName}, '%')) </if>
-            <if test="begin != null and end != null"> AND a.check_in BETWEEN #{begin} AND #{end} </if>
+            <if test="username != null">AND a.user_id IN (SELECT id FROM users WHERE username LIKE CONCAT('%', #{username}, '%'))</if>
+            <if test="groupName != null">AND g.name LIKE CONCAT('%', #{groupName}, '%')</if>
+            <if test="begin != null and end != null">AND DATE(a.check_in) BETWEEN #{begin} AND #{end}</if>
         </where>
         ORDER BY a.check_in DESC
     </select>
     <select id="myRecord" resultType="cn.nullcat.sckj.pojo.Attendance">
-        select * from attendance
+        SELECT
+        a.id,
+        a.user_id as userId,
+        a.group_id as groupId,
+        a.username as userName,
+        a.check_in as checkIn,
+        a.check_out as checkOut,
+        g.name as groupName
+        FROM attendance a
+        LEFT JOIN user_groups g ON a.group_id = g.id
         <where>
-            user_id = #{userIdNow}
+            a.user_id = #{userIdNow}
             <if test="begin != null and end != null">
-                and check_in between #{begin} and #{end}
+                and DATE(a.check_in) between #{begin} and #{end}
             </if>
         </where>
-        order by check_in desc
+        order by a.check_in desc
     </select>
     <select id="groupRecord" resultType="cn.nullcat.sckj.pojo.Attendance">
-        SELECT * FROM attendance
-        <where>
-            <if test="groupIdNow != null">AND group_id = #{groupIdNow}</if>
-            <if test="begin != null and end != null">AND check_in BETWEEN #{begin} AND #{end}</if>
-        </where>
-        ORDER BY check_in DESC
+        SELECT
+            a.id,
+            a.user_id as userId,
+            a.group_id as groupId,
+            a.username as userName,
+            a.check_in as checkIn,
+            a.check_out as checkOut,
+            g.name as groupName
+        FROM attendance a
+                 LEFT JOIN user_groups g ON a.group_id = g.id
+        WHERE a.group_id = #{groupIdNow}
+          AND DATE(a.check_in) BETWEEN #{begin} AND #{end}
+        ORDER BY a.check_in DESC
     </select>
 
 

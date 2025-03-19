@@ -1,23 +1,33 @@
 package cn.nullcat.sckj.controller;
 
 import cn.nullcat.sckj.pojo.DTO.UserFormDTO;
+import cn.nullcat.sckj.pojo.PageBean;
 import cn.nullcat.sckj.pojo.Result;
 import cn.nullcat.sckj.pojo.VO.UserVO;
+import cn.nullcat.sckj.service.AttendanceService;
+import cn.nullcat.sckj.service.PreRegisteredUserService;
 import cn.nullcat.sckj.service.UserService;
 import cn.nullcat.sckj.utils.JwtUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 import jakarta.servlet.http.HttpServletRequest;
 
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
-
+@Slf4j
 @RestController
 @RequestMapping("/user")
 public class UserContorller {
     @Autowired
     private UserService userservice;
+    @Autowired
+    private PreRegisteredUserService preRegisteredUserService;
+    @Autowired
+    private AttendanceService attendanceService;
 
     /**
      * 账号登录
@@ -54,6 +64,13 @@ public class UserContorller {
      */
     @PostMapping("/register")
     public Result register(@RequestBody UserFormDTO userFormDTO) {
+        if(userFormDTO.getUsername() == null || userFormDTO.getPassword() == null){
+            return Result.error("不允许为空");
+        }
+        String username = userFormDTO.getUsername();
+        if(!preRegisteredUserService.exist(username)){
+            return Result.error("用户名未预注册,请联系管理员");
+        }
         userservice.register(userFormDTO);
         return Result.success();
     }
@@ -130,5 +147,21 @@ public class UserContorller {
         }
         userservice.changeRole(id);
         return Result.success("身份修改成功");
+    }
+
+    @GetMapping("/getAll")
+    public Result getAll(@RequestParam(defaultValue = "1") Integer page,
+                         @RequestParam(defaultValue = "10") Integer pageSize,
+                         String username,
+                         String role,
+                         String groupName,
+                         @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate begin,
+                         @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate end,
+                         HttpServletRequest request) {
+        Integer userIdNow = (Integer) request.getAttribute("userId");
+        Integer groupIdNow = userservice.getGroupIdByUserId(userIdNow);
+        log.info("人员分页条件查询:{},{},{},{},{},{},{}", page, pageSize, username,role,groupName, begin, end);
+        PageBean pageBean = userservice.getAll(page, pageSize, username,role,groupName, begin, end);
+        return Result.success(pageBean);
     }
 }

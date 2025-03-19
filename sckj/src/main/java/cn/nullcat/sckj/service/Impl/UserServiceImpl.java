@@ -1,20 +1,30 @@
 package cn.nullcat.sckj.service.Impl;
 
 import cn.nullcat.sckj.mapper.UserMapper;
+import cn.nullcat.sckj.pojo.Attendance;
 import cn.nullcat.sckj.pojo.DTO.UserFormDTO;
+import cn.nullcat.sckj.pojo.PageBean;
 import cn.nullcat.sckj.pojo.Users;
 import cn.nullcat.sckj.pojo.VO.UserVO;
+import cn.nullcat.sckj.service.PreRegisteredUserService;
 import cn.nullcat.sckj.service.UserService;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserMapper userMapper;
+    @Autowired
+    private PreRegisteredUserService preRegisteredUserService;
 
     /**
      * 账号注册
@@ -25,9 +35,11 @@ public class UserServiceImpl implements UserService {
         Users users = new Users();
         BeanUtils.copyProperties(userFormDTO, users);
         users.setRole(Users.Role.USER);
-        users.setGroupId(1);
+        Integer groupId = preRegisteredUserService.getGroupIdByUserName(userFormDTO.getUsername());
+        users.setGroupId(groupId);
         users.setCreatedAt(LocalDateTime.now());
         users.setUpdatedAt(LocalDateTime.now());
+        preRegisteredUserService.chagneRegisteredStatus(userFormDTO.getUsername());
         userMapper.add(users);
     }
 
@@ -131,5 +143,26 @@ public class UserServiceImpl implements UserService {
     @Override
     public void changeRole(Integer id) {
         userMapper.changeRole(id);
+    }
+
+    /**
+     * 查询全部信息
+     * @param page
+     * @param pageSize
+     * @param username
+     * @param role
+     * @param groupName
+     * @param begin
+     * @param end
+     * @return
+     */
+    @Override
+    public PageBean getAll(Integer page, Integer pageSize, String username, String role, String groupName, LocalDate begin, LocalDate end) {
+        PageHelper.startPage(page, pageSize);
+        List<Users> list = userMapper.getAll(username,groupName,begin,end);
+        Page<Users> p = (Page<Users>) list;
+
+        PageBean pageBean = new PageBean(p.getTotal(), p.getResult());
+        return pageBean;
     }
 }

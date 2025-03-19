@@ -32,6 +32,7 @@ public class GroupController {
         }
         groupService.add(name,description);
         return Result.success("添加成功");
+
     }
 
     /**
@@ -64,7 +65,8 @@ public class GroupController {
     @PostMapping("/update")
     public Result edit(@RequestBody Group group) {
         String name = group.getName();
-        if(groupService.getByGruopName(name)){
+        Group existingGroup = groupService.getById(String.valueOf(group.getId()));
+        if(!existingGroup.getName().equals(name) && groupService.getByGruopName(name)){
             return Result.error("该组已经存在");
         }
         groupService.update(group);
@@ -84,8 +86,8 @@ public class GroupController {
     public Result getAll(@RequestParam(defaultValue = "1") Integer page,
                          @RequestParam(defaultValue = "10") Integer pageSize,
                          String name,
-                         @DateTimeFormat(pattern = "yyyy-mm-dd") LocalDate begin,
-                         @DateTimeFormat(pattern = "yyyy-mm-dd") LocalDate end) {
+                         @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate begin,
+                         @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate end) {
         PageBean pageBean = groupService.getAll(page,pageSize,name,begin,end);
         return Result.success(pageBean);
     }

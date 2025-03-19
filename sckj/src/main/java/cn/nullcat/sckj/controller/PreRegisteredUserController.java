@@ -48,12 +48,22 @@ public class PreRegisteredUserController {
         preRegisteredUserService.delete(username);
         return Result.success("删除成功！");
     }
+
+    /**
+     * 分页查询
+     * @param page
+     * @param pageSize
+     * @param username
+     * @param begin
+     * @param end
+     * @return
+     */
     @GetMapping("/getAll")
     public Result getAll(@RequestParam(defaultValue = "1") Integer page,
                          @RequestParam(defaultValue = "10") Integer pageSize,
                          String username,
-                         @DateTimeFormat(pattern = "yyyy-mm-dd") LocalDate begin,
-                         @DateTimeFormat(pattern = "yyyy-mm-dd") LocalDate end) {
+                         @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate begin,
+                         @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate end) {
         PageBean pageBean = preRegisteredUserService.getAll(page,pageSize,username,begin,end);
         return Result.success(pageBean);
     }

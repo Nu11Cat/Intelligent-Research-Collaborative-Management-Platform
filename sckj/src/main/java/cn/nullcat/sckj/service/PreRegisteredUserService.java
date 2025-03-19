@@ -42,4 +42,24 @@ public interface PreRegisteredUserService {
      * @return
      */
     PageBean getAll(Integer page, Integer pageSize, String username, LocalDate begin, LocalDate end);
+
+    /**
+     * 预注册？
+     * @param username
+     * @return
+     */
+    boolean exist(String username);
+
+    /**
+     * 根据用户名查找所在小组
+     * @param username
+     * @return
+     */
+    Integer getGroupIdByUserName(String username);
+
+    /**
+     * 修改用户注册状态
+     * @param username
+     */
+    void chagneRegisteredStatus(String username);
 }

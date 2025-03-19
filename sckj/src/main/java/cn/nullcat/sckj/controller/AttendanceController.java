@@ -3,6 +3,7 @@ package cn.nullcat.sckj.controller;
 import cn.nullcat.sckj.pojo.PageBean;
 import cn.nullcat.sckj.pojo.Result;
 import cn.nullcat.sckj.service.AttendanceService;
+import cn.nullcat.sckj.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -17,6 +18,8 @@ import java.time.LocalDate;
 public class AttendanceController {
     @Autowired
     private AttendanceService attendanceService;
+    @Autowired
+    private UserService userService;
 
     /**
      * 签到
@@ -30,7 +33,7 @@ public class AttendanceController {
             return Result.error("你今天已经签过到了喔");
         }
         attendanceService.signIn(userIdNow);
-        return Result.error("签到成功");
+        return Result.success("签到成功");
     }
 
     /**
@@ -57,8 +60,8 @@ public class AttendanceController {
                              @RequestParam(defaultValue = "10") Integer pageSize,
                              String username,
                              String groupName,
-                             @DateTimeFormat(pattern = "yyyy-mm-dd") LocalDate begin,
-                             @DateTimeFormat(pattern = "yyyy-mm-dd") LocalDate end) {
+                             @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate begin,
+                             @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate end) {
         log.info("全部分页条件查询:{},{},{},{},{},{}",page,pageSize,username,groupName,begin,end);
         PageBean pageBean = attendanceService.allRecords(page,pageSize,username,groupName,begin,end);
         return Result.success(pageBean);
@@ -76,8 +79,8 @@ public class AttendanceController {
     @GetMapping("/myRecords")
     public Result myRecords(@RequestParam(defaultValue = "1") Integer page,
                              @RequestParam(defaultValue = "10") Integer pageSize,
-                             @DateTimeFormat(pattern = "yyyy-mm-dd") LocalDate begin,
-                             @DateTimeFormat(pattern = "yyyy-mm-dd") LocalDate end,
+                             @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate begin,
+                             @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate end,
                              HttpServletRequest request) {
         Integer userIdNow = (Integer) request.getAttribute("userId");
         log.info("个人分页条件查询:{},{},{},{},{}", page, pageSize, userIdNow, begin, end);
@@ -97,11 +100,12 @@ public class AttendanceController {
     @GetMapping("/groupRecords")
     public Result groupRecords(@RequestParam(defaultValue = "1") Integer page,
                             @RequestParam(defaultValue = "10") Integer pageSize,
-                            @DateTimeFormat(pattern = "yyyy-mm-dd") LocalDate begin,
-                            @DateTimeFormat(pattern = "yyyy-mm-dd") LocalDate end,
+                            @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate begin,
+                            @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate end,
                             HttpServletRequest request) {
-        Integer groupIdNow = (Integer) request.getAttribute("groupId");
-        log.info("个人分页条件查询:{},{},{},{},{}", page, pageSize, groupIdNow, begin, end);
+        Integer userIdNow = (Integer) request.getAttribute("userId");
+        Integer groupIdNow = userService.getGroupIdByUserId(userIdNow);
+        log.info("小组分页条件查询:{},{},{},{},{}", page, pageSize, groupIdNow, begin, end);
         PageBean pageBean = attendanceService.groupRecords(page, pageSize, groupIdNow, begin, end);
         return Result.success(pageBean);
     }

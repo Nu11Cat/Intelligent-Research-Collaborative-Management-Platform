@@ -81,4 +81,34 @@ public class PreRegisteredUserServiceImpl implements PreRegisteredUserService {
         PageBean pageBean = new PageBean(p.getTotal(), p.getResult());
         return pageBean;
     }
+
+    /**
+     * 预注册
+     * @param username
+     * @return
+     */
+    @Override
+    public boolean exist(String username) {
+        PreregisteredUser user = preRegisteredUserMapper.getByName(username);
+        return user != null;
+    }
+
+    /**
+     * 根据用户名字查询用户小组
+     * @param username
+     * @return
+     */
+    @Override
+    public Integer getGroupIdByUserName(String username) {
+        return preRegisteredUserMapper.getGroupIdByUserName(username);
+    }
+
+    /**
+     * 修改用户注册状态
+     * @param username
+     */
+    @Override
+    public void chagneRegisteredStatus(String username) {
+        preRegisteredUserMapper.chagneRegisteredStatus(username);
+    }
 }

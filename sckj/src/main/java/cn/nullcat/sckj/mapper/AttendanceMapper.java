@@ -25,7 +25,7 @@ public interface AttendanceMapper {
             "WHERE user_id = #{userId} " +
             "AND group_id = #{groupId} " +
             "AND DATE(check_in) = DATE(#{time})")
-    Users getBySignIn(Integer userId, Integer groupId, LocalDateTime time);
+    Attendance getBySignIn(Integer userId, Integer groupId, LocalDateTime time);
 
     /**
      * 签到
@@ -33,8 +33,8 @@ public interface AttendanceMapper {
      * @param groupId
      * @param time
      */
-    @Insert("INSERT INTO attendance (user_id, group_id, check_in,username,group_name) VALUES (#{userId}, #{groupId}, #{time},#{userName},#{groupName})")
-    void add(Integer userId, Integer groupId, LocalDateTime time,String userName,String groupName);
+    @Insert("INSERT INTO attendance (user_id, group_id, check_in,username) VALUES (#{userId}, #{groupId}, #{time},#{userName})")
+    void add(Integer userId, Integer groupId, LocalDateTime time,String userName);
 
     /**
      * 判断今日是否签到2
@@ -43,7 +43,7 @@ public interface AttendanceMapper {
      * @return
      */
     @Select("select * from attendance where user_id = #{userId} and DATE(check_in) = DATE(#{time})")
-    Users getBySignOut(Integer userId, LocalDateTime time);
+    Attendance getBySignOut(Integer userId, LocalDateTime time);
 
     /**
      * 签退
@@ -56,13 +56,12 @@ public interface AttendanceMapper {
     /**
      * 获取全部考勤记录 分页条件查询
      * @param username
-     * @param groupName
      * @param begin
      * @param end
      * @return
      */
 
-    List<Attendance> allRecord(String username, String groupName, LocalDate begin, LocalDate end);
+    List<Attendance> allRecord(String username,String groupName, LocalDate begin, LocalDate end);
 
     /**
      * 获取个人考勤记录 分页条件查询
