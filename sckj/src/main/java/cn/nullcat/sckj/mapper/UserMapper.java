@@ -105,5 +105,13 @@ public interface UserMapper {
      * @param end
      * @return
      */
-    List<Users> getAll(String username, String groupName, LocalDate begin, LocalDate end);
+    List<Users> getAll(String username, String groupName,String role ,LocalDate begin, LocalDate end);
+
+    /**
+     *
+     * @param groupIdNow
+     * @return
+     */
+    @Select("SELECT id, username FROM users WHERE group_id = #{groupId}")
+    List<Users> getByGroupId(Integer groupIdNow);
 }

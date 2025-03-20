@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -157,12 +158,24 @@ public class UserServiceImpl implements UserService {
      * @return
      */
     @Override
-    public PageBean getAll(Integer page, Integer pageSize, String username, String role, String groupName, LocalDate begin, LocalDate end) {
+    public PageBean getAll(Integer page, Integer pageSize, String username, String groupName,String role ,LocalDate begin, LocalDate end) {
         PageHelper.startPage(page, pageSize);
-        List<Users> list = userMapper.getAll(username,groupName,begin,end);
+        List<Users> list = userMapper.getAll(username, groupName, role , begin, end);
         Page<Users> p = (Page<Users>) list;
 
-        PageBean pageBean = new PageBean(p.getTotal(), p.getResult());
-        return pageBean;
+        // 将 Users 转换为 UserVO
+        List<UserVO> voList = p.getResult().stream()
+                .map(user -> {
+                    UserVO vo = new UserVO();
+                    vo.setUsername(user.getUsername());
+                    vo.setRole(user.getRole());
+                    vo.setCreatedAt(user.getCreatedAt());
+                    vo.setUpdatedAt(user.getUpdatedAt());
+                    vo.setGroupName(userMapper.getGroupnameById(user.getId()));
+                    return vo;
+                })
+                .collect(Collectors.toList());
+
+        return new PageBean(p.getTotal(), voList);
     }
 }

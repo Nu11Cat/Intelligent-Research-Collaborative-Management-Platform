@@ -1,7 +1,10 @@
 package cn.nullcat.sckj.service.Impl;
 
 import cn.nullcat.sckj.mapper.AttendanceMapper;
+import cn.nullcat.sckj.mapper.EquipmentMapper;
+import cn.nullcat.sckj.mapper.UserMapper;
 import cn.nullcat.sckj.pojo.Attendance;
+import cn.nullcat.sckj.pojo.DTO.GroupAttendanceStatusDTO;
 import cn.nullcat.sckj.pojo.DTO.SignInDTO;
 import cn.nullcat.sckj.pojo.DTO.SignOutDTO;
 import cn.nullcat.sckj.pojo.PageBean;
@@ -10,12 +13,15 @@ import cn.nullcat.sckj.service.AttendanceService;
 import cn.nullcat.sckj.service.UserService;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class AttendanceServiceImpl implements AttendanceService {
@@ -24,6 +30,8 @@ public class AttendanceServiceImpl implements AttendanceService {
     private AttendanceMapper attendanceMapper;
     @Autowired
     private UserService userService;
+    @Autowired
+    private UserMapper userMapper;
     /**
      * 判断今日是否签到1
      * @return
@@ -128,6 +136,54 @@ public class AttendanceServiceImpl implements AttendanceService {
 
         PageBean pageBean = new PageBean(p.getTotal(), p.getResult());
         return pageBean;
+    }
+
+    /**
+     *
+     * @param groupIdNow
+     * @return
+     */
+    @Override
+    public GroupAttendanceStatusDTO getTodayGroupAttendanceStatus(Integer groupIdNow) {
+        // 1. 创建返回对象
+        GroupAttendanceStatusDTO statusDTO = new GroupAttendanceStatusDTO();
+
+        // 2. 获取本组所有成员
+        List<Users> allMembers = userMapper.getByGroupId(groupIdNow);
+        statusDTO.setTotalMembers(allMembers.size());
+
+        // 3. 获取今日考勤记录
+        LocalDate today = LocalDate.now();
+        List<Attendance> todayRecords = attendanceMapper.getTodayGroupAttendance(groupIdNow, today);
+
+        // 4. 统计已签到人数
+        statusDTO.setCheckedInCount(todayRecords.size());
+
+        // 5. 统计已签退人数
+        long checkedOutCount = todayRecords.stream()
+                .filter(record -> record.getCheckOut() != null)
+                .count();
+        statusDTO.setCheckedOutCount((int) checkedOutCount);
+
+        // 6. 获取未签到人员名单
+        Set<Integer> checkedInUserIds = todayRecords.stream()
+                .map(Attendance::getUserId)
+                .collect(Collectors.toSet());
+
+        List<String> notCheckedInUsers = allMembers.stream()
+                .filter(member -> !checkedInUserIds.contains(member.getId()))
+                .map(Users::getUsername)
+                .collect(Collectors.toList());
+        statusDTO.setNotCheckedInUsers(notCheckedInUsers);
+
+        // 7. 获取未签退人员名单
+        List<String> notCheckedOutUsers = todayRecords.stream()
+                .filter(record -> record.getCheckOut() == null)
+                .map(Attendance::getUserName)
+                .collect(Collectors.toList());
+        statusDTO.setNotCheckedOutUsers(notCheckedOutUsers);
+
+        return statusDTO;
     }
 
 }

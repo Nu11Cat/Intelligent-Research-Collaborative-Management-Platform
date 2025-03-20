@@ -1,5 +1,6 @@
 package cn.nullcat.sckj.service;
 
+import cn.nullcat.sckj.pojo.DTO.GroupAttendanceStatusDTO;
 import cn.nullcat.sckj.pojo.DTO.SignInDTO;
 import cn.nullcat.sckj.pojo.DTO.SignOutDTO;
 import cn.nullcat.sckj.pojo.PageBean;
@@ -66,4 +67,10 @@ public interface AttendanceService {
      */
     PageBean groupRecords(Integer page, Integer pageSize, Integer groupIdNow, LocalDate begin, LocalDate end);
 
+    /**
+     *
+     * @param groupIdNow
+     * @return
+     */
+    GroupAttendanceStatusDTO getTodayGroupAttendanceStatus(Integer groupIdNow);
 }

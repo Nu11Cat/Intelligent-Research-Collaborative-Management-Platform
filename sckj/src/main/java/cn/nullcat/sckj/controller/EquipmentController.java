@@ -61,6 +61,9 @@ public class EquipmentController {
     @PostMapping("/return")
     private Result returnEquipment(@RequestParam Integer equipmentId, HttpServletRequest request) {
         Integer userIdNow = (Integer) request.getAttribute("userId");
+        if(equipmentService.notYourBorrow(equipmentId,userIdNow)){
+            return Result.error("不是你的借用，你无权归还");
+        }
         equipmentService.returnEquipment(userIdNow,equipmentId);
         return Result.success("归还成功");
     }

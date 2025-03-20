@@ -139,4 +139,16 @@ public class EquipmentServiceImpl implements EquipmentService {
         equipmentMapper.update(id,name,description,level,imageUrl);
     }
 
+    /**
+     *
+     * @param equipmentId
+     * @param userIdNow
+     * @return
+     */
+    @Override
+    public boolean notYourBorrow(Integer equipmentId, Integer userIdNow) {
+        EquipmentBorrow equipmentBorrow = equipmentMapper.notYourBorrow(equipmentId,userIdNow);
+        return equipmentBorrow==null;
+    }
+
 }

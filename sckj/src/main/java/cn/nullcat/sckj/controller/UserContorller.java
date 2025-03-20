@@ -1,5 +1,6 @@
 package cn.nullcat.sckj.controller;
 
+import cn.nullcat.sckj.pojo.DTO.GroupAttendanceStatusDTO;
 import cn.nullcat.sckj.pojo.DTO.UserFormDTO;
 import cn.nullcat.sckj.pojo.PageBean;
 import cn.nullcat.sckj.pojo.Result;
@@ -173,7 +174,7 @@ public class UserContorller {
         Integer userIdNow = (Integer) request.getAttribute("userId");
         Integer groupIdNow = userservice.getGroupIdByUserId(userIdNow);
         log.info("人员分页条件查询:{},{},{},{},{},{},{}", page, pageSize, username,role,groupName, begin, end);
-        PageBean pageBean = userservice.getAll(page, pageSize, username,role,groupName, begin, end);
+        PageBean pageBean = userservice.getAll(page, pageSize, username,groupName, role,begin, end);
         return Result.success(pageBean);
     }
 
@@ -187,5 +188,24 @@ public class UserContorller {
     public Result getById(@PathVariable Integer userId) {
         UserVO userVO = userservice.getById(userId);
         return Result.success(userVO);
+    }
+
+    /**
+     * 获取本组今日考勤统计
+     * @param request
+     * @return
+     */
+    @GetMapping("/groupTodayStatus")
+    public Result groupTodayStatus(HttpServletRequest request) {
+        // 1. 获取当前登录用户的ID
+        Integer userIdNow = (Integer) request.getAttribute("userId");
+
+        // 2. 获取用户所在的组ID
+        Integer groupIdNow = userservice.getGroupIdByUserId(userIdNow);
+
+        // 3. 调用service方法获取统计数据
+        GroupAttendanceStatusDTO statusDTO = attendanceService.getTodayGroupAttendanceStatus(groupIdNow);
+
+        return Result.success(statusDTO);
     }
 }

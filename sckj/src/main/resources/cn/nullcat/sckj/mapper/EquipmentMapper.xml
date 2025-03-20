@@ -8,7 +8,7 @@
         <set>
             <if test="name != null">name = #{name},</if>
             <if test="description != null">description = #{description},</if>
-            <if test="level != null">condition = #{level},</if>
+            <if test="level != null">level = #{level},</if>
             <if test="imageUrl != null">image_url = #{imageUrl},</if>
         </set>
         WHERE id = #{id}

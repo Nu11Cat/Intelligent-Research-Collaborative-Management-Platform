@@ -16,4 +16,5 @@ public class Equipment {
     private Integer level;
     private String imageUrl;
     private LocalDateTime createdAt;
+    private Integer status;
 }

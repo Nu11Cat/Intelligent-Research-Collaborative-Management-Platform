@@ -25,11 +25,13 @@
     </insert>
     <select id="getAll" resultType="cn.nullcat.sckj.pojo.Users">
         SELECT
-        a.id as userId,
+        a.id,
+        a.username,
+        a.role,
         a.group_id as groupId,
-        a.username as userName,
         g.name as groupName,
-        a.created_at as createdAt
+        a.created_at as createdAt,
+        a.updated_at as updatedAt
         FROM users a
         LEFT JOIN user_groups g ON a.group_id = g.id
         <where>
@@ -39,12 +41,16 @@
             <if test="groupName != null">
                 AND g.name LIKE CONCAT('%', #{groupName}, '%')
             </if>
+            <if test="role != null and role != ''">
+                AND a.role = #{role}
+            </if>
             <if test="begin != null and end != null">
                 AND DATE(a.created_at) BETWEEN #{begin} AND #{end}
             </if>
         </where>
         ORDER BY a.created_at DESC
     </select>
+
 
 
 

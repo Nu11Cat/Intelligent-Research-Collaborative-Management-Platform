@@ -42,18 +42,34 @@
     </select>
     <select id="groupRecord" resultType="cn.nullcat.sckj.pojo.Attendance">
         SELECT
-            a.id,
-            a.user_id as userId,
-            a.group_id as groupId,
-            a.username as userName,
-            a.check_in as checkIn,
-            a.check_out as checkOut,
-            g.name as groupName
+        a.id,
+        a.user_id as userId,
+        a.group_id as groupId,
+        a.username as userName,
+        a.check_in as checkIn,
+        a.check_out as checkOut,
+        g.name as groupName
         FROM attendance a
-                 LEFT JOIN user_groups g ON a.group_id = g.id
-        WHERE a.group_id = #{groupIdNow}
-          AND DATE(a.check_in) BETWEEN #{begin} AND #{end}
+        LEFT JOIN user_groups g ON a.group_id = g.id
+        <where>
+            a.group_id = #{groupIdNow}
+            <if test="begin != null and end != null">
+                AND DATE(a.check_in) BETWEEN #{begin} AND #{end}
+            </if>
+        </where>
         ORDER BY a.check_in DESC
+    </select>
+    <select id="getTodayGroupAttendance" resultType="cn.nullcat.sckj.pojo.Attendance">
+        SELECT
+        id,
+        user_id as userId,
+        group_id as groupId,
+        username as userName,
+        check_in as checkIn,
+        check_out as checkOut
+        FROM attendance
+        WHERE group_id = #{groupIdNow}    <!-- 改成groupIdNow -->
+        AND DATE(check_in) = #{today}     <!-- 改成today -->
     </select>
 
 

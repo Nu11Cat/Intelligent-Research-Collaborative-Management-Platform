@@ -79,4 +79,12 @@ public interface AttendanceMapper {
      * @return
      */
     List<Attendance> groupRecord(Integer groupIdNow, LocalDate begin, LocalDate end);
+
+    /**
+     *
+     * @param groupIdNow
+     * @param today
+     * @return
+     */
+    List<Attendance> getTodayGroupAttendance(Integer groupIdNow, LocalDate today);
 }

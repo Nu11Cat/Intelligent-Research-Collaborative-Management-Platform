@@ -40,7 +40,7 @@ public interface EquipmentMapper {
      * @param equipmentId
      * @param now
      */
-    @Update("UPDATE equipment_borrow SET return_time = #{now} WHERE user_id = #{userIdNow} AND equipment_id = #{equipmentId} AND return_time IS NULL")
+    @Update("UPDATE equipment_borrow SET return_time = #{now} WHERE user_id = #{userIdNow} AND equipment_id = #{equipmentId}")
     void returnEquipment(Integer userIdNow, Integer equipmentId, LocalDateTime now);
 
     /**
@@ -64,14 +64,14 @@ public interface EquipmentMapper {
      * 改为已借出
      * @param equipmentId
      */
-    @Update("UPDATE equipment SET status = '已借出' WHERE id = #{equipmentId} AND status = '可借用'")
+    @Update("UPDATE equipment SET status = 1 WHERE id = #{equipmentId} AND status = 0 ")
     void toUnable(Integer equipmentId);
 
     /**
      * 改为可借用
      * @param equipmentId
      */
-    @Update("UPDATE equipment SET status = '可借用' WHERE id = #{equipmentId}")
+    @Update("UPDATE equipment SET status = 0 WHERE id = #{equipmentId}")
     void toAble(Integer equipmentId);
 
     /**
@@ -101,6 +101,6 @@ public interface EquipmentMapper {
      */
     void update(Integer id, String name, String description, Integer level, String imageUrl);
 
-
-
+    @Select("select * from equipment_borrow where user_id = #{userIdNow} and equipment_id = #{equipmentId} and return_time is null")
+    EquipmentBorrow notYourBorrow(Integer equipmentId, Integer userIdNow);
 }

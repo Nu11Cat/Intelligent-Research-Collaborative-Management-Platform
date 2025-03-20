@@ -67,4 +67,12 @@ public interface EquipmentService {
      * @param equipment
      */
     void update(Equipment equipment);
+
+    /**
+     * 判断是否本人借用的
+     * @param equipmentId
+     * @param userIdNow
+     * @return
+     */
+    boolean notYourBorrow(Integer equipmentId, Integer userIdNow);
 }

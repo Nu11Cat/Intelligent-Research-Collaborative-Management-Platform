@@ -93,5 +93,5 @@ public interface UserService {
      * @param end
      * @return
      */
-    PageBean getAll(Integer page, Integer pageSize, String username, String role, String groupName, LocalDate begin, LocalDate end);
+    PageBean getAll(Integer page, Integer pageSize, String username, String groupName, String role, LocalDate begin, LocalDate end);
 }
