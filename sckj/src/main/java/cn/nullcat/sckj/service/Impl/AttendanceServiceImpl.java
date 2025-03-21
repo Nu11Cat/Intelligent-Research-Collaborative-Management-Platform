@@ -51,11 +51,20 @@ public class AttendanceServiceImpl implements AttendanceService {
      */
     @Override
     public void signIn(Integer userIdNow) {
-        Integer userId = userIdNow;
         Integer groupId = userService.getGroupIdByUserId(userIdNow);
         LocalDateTime time = LocalDateTime.now();
         String userName = userService.getUsernameById(userIdNow);
-        attendanceMapper.add(userId,groupId,time,userName);
+
+        // 先查询今天是否有记录
+        Attendance todayRecord = attendanceMapper.getTodayRecord(userIdNow, groupId, time);
+
+        if (todayRecord == null) {
+            // 没有记录，新增
+            attendanceMapper.add(userIdNow, groupId, time, userName);
+        } else {
+            // 有记录，更新签到时间
+            attendanceMapper.updateCheckIn(userIdNow, time);
+        }
     }
 
     /**
@@ -77,9 +86,8 @@ public class AttendanceServiceImpl implements AttendanceService {
      */
     @Override
     public void signOut(Integer userIdNow) {
-        Integer userId = userIdNow;
         LocalDateTime time = LocalDateTime.now();
-        attendanceMapper.add2(userId,time);
+        attendanceMapper.add2(userIdNow, time);
     }
 
     /**
@@ -183,6 +191,19 @@ public class AttendanceServiceImpl implements AttendanceService {
                 .collect(Collectors.toList());
         statusDTO.setNotCheckedOutUsers(notCheckedOutUsers);
 
+        // 8. 获取今日请假记录
+        List<Attendance> leaveRecords = todayRecords.stream()
+                .filter(record -> record.getIsLeave() == 1)
+                .collect(Collectors.toList());
+
+        // 9. 统计请假人数
+                statusDTO.setLeaveCount(leaveRecords.size());
+
+        // 10. 获取请假人员名单
+                List<String> leaveUsers = leaveRecords.stream()
+                        .map(Attendance::getUserName)
+                        .collect(Collectors.toList());
+                statusDTO.setLeaveUsers(leaveUsers);
         return statusDTO;
     }
 

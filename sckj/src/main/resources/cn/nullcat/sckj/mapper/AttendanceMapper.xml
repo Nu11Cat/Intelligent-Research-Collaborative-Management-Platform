@@ -61,15 +61,16 @@
     </select>
     <select id="getTodayGroupAttendance" resultType="cn.nullcat.sckj.pojo.Attendance">
         SELECT
-        id,
-        user_id as userId,
-        group_id as groupId,
-        username as userName,
-        check_in as checkIn,
-        check_out as checkOut
+            id,
+            user_id as userId,
+            group_id as groupId,
+            username as userName,
+            check_in as checkIn,
+            check_out as checkOut,
+            is_leave as isLeave
         FROM attendance
-        WHERE group_id = #{groupIdNow}    <!-- 改成groupIdNow -->
-        AND DATE(check_in) = #{today}     <!-- 改成today -->
+        WHERE group_id = #{groupIdNow}
+          AND DATE(check_in) = #{today}
     </select>
 
 

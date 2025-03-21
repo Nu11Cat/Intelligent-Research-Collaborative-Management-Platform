@@ -18,4 +18,5 @@ public class Attendance {
     private String groupName;
     private LocalDateTime checkIn;  // 上班打卡时间
     private LocalDateTime checkOut; // 下班打卡时间（可为空）
+    private Integer isLeave;    // 是否请假：0否，1是
 }

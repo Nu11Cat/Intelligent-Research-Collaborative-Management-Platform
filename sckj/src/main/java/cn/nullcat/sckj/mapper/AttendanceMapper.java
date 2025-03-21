@@ -21,12 +21,15 @@ public interface AttendanceMapper {
      * @param time
      * @return
      */
+    @Select("SELECT * FROM attendance WHERE user_id = #{userId} AND group_id = #{groupId} AND DATE(check_in) = DATE(#{time}) AND is_leave = 0")
+    Attendance getBySignIn(Integer userId, Integer groupId, LocalDateTime time);
+
+
     @Select("SELECT * FROM attendance " +
             "WHERE user_id = #{userId} " +
             "AND group_id = #{groupId} " +
             "AND DATE(check_in) = DATE(#{time})")
-    Attendance getBySignIn(Integer userId, Integer groupId, LocalDateTime time);
-
+    Attendance getTodayRecord(Integer userId, Integer groupId, LocalDateTime time);
     /**
      * 签到
      * @param userId
@@ -50,7 +53,10 @@ public interface AttendanceMapper {
      * @param userId
      * @param time
      */
-    @Update("UPDATE attendance SET check_out = #{time} WHERE user_id = #{userId} AND DATE(check_in) = CURRENT_DATE")
+    @Update("UPDATE attendance " +
+            "SET check_out = #{time} " +
+            "WHERE user_id = #{userId} " +
+            "AND DATE(check_in) = DATE(#{time})")
     void add2(Integer userId, LocalDateTime time);
 
     /**
@@ -87,4 +93,16 @@ public interface AttendanceMapper {
      * @return
      */
     List<Attendance> getTodayGroupAttendance(Integer groupIdNow, LocalDate today);
+
+
+    @Insert("INSERT INTO attendance (user_id,group_id,username,check_in, check_out,is_leave ) VALUES (#{userId},#{groupId},#{userName},#{leaveDate},#{leaveDate},1)")
+    void addLeaveRecord(Integer userId, Integer groupId, String userName,LocalDate leaveDate);
+
+    /**
+     *
+     * @param userIdNow
+     * @param time
+     */
+    @Update("UPDATE attendance SET check_in = #{time} WHERE user_id = #{userIdNow} AND DATE(check_in) = DATE(#{time})")
+    void updateCheckIn(Integer userIdNow, LocalDateTime time);
 }

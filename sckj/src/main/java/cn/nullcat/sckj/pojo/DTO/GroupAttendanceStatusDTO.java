@@ -25,9 +25,14 @@ public class GroupAttendanceStatusDTO {
     // 已签到但未签退人员名单
     private List<String> notCheckedOutUsers;
 
+
     // 可选：小组名称
     private String groupName;
 
     // 可选：统计日期
     private String date;
+
+    private Integer leaveCount;          // 今日请假人数
+
+    private List<String> leaveUsers;     // 今日请假人员名单
 }
