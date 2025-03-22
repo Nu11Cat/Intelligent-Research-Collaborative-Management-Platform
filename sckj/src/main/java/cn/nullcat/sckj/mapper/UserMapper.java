@@ -94,8 +94,8 @@ public interface UserMapper {
      * 修改身份
      * @param id
      */
-    @Update("UPDATE users SET role = 'LEADER' WHERE id = #{id}")
-    void changeRole(Integer id);
+    @Update("UPDATE users SET role = #{role} WHERE id = #{id}")
+    void changeRole(Integer id, String role);
 
     /**
      * 查询全部信息
@@ -114,4 +114,11 @@ public interface UserMapper {
      */
     @Select("SELECT id, username FROM users WHERE group_id = #{groupId}")
     List<Users> getByGroupId(Integer groupIdNow);
+
+    /**
+     * 获取小组全部信息
+     * @return
+     */
+    @Select("SELECT COUNT(*) FROM users")
+    Integer getTotalUsers();
 }

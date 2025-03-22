@@ -14,7 +14,9 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class GroupServiceImpl implements GroupService {
@@ -70,20 +72,48 @@ public class GroupServiceImpl implements GroupService {
      */
     @Override
     public void update(GroupDTO groupDTO) {
-        Integer id = groupDTO.getId();
+        Integer groupId = groupDTO.getId();  // 改名为 groupId
         String name = groupDTO.getName();
         String description = groupDTO.getDescription();
-        String  leaderAName = groupDTO.getAdminAName();
-        Integer leaderA = userService.getUserIdByUsername(leaderAName);
-        userService.changeRole(leaderA);
-        String leaderBName = groupDTO.getAdminBName();
-        Integer leaderB = userService.getUserIdByUsername(leaderBName);
-        userService.changeRole(leaderB);
-        String leaderCName = groupDTO.getAdminCName();
-        Integer leaderC = userService.getUserIdByUsername(leaderCName);
-        userService.changeRole(leaderC);
+
+        // 获取修改前的小组信息
+        Group oldGroup = getById(String.valueOf(groupId));
+
+        // 获取修改前后的管理员ID列表
+        List<Integer> oldAdmins = Arrays.asList(oldGroup.getAdminA(), oldGroup.getAdminB(), oldGroup.getAdminC());
+        List<Integer> newAdmins = Arrays.asList(
+                userService.getUserIdByUsername(groupDTO.getAdminAName()),
+                userService.getUserIdByUsername(groupDTO.getAdminBName()),
+                userService.getUserIdByUsername(groupDTO.getAdminCName())
+        );
+
+        // 找出新增的管理员（在新列表中但不在旧列表中）
+        List<Integer> addedAdmins = newAdmins.stream()
+                .filter(adminId -> adminId != null && !oldAdmins.contains(adminId))  // 改名为 adminId
+                .collect(Collectors.toList());
+
+        // 找出被删除的管理员（在旧列表中但不在新列表中）
+        List<Integer> removedAdmins = oldAdmins.stream()
+                .filter(adminId -> adminId != null && !newAdmins.contains(adminId))  // 改名为 adminId
+                .collect(Collectors.toList());
+
+        // 将新增的管理员角色改为 LEADER
+        for (Integer adminId : addedAdmins) {
+            userService.changeRole(adminId, "LEADER");
+        }
+
+        // 将被删除的管理员角色改回 USER
+        for (Integer adminId : removedAdmins) {
+            userService.changeRole(adminId, "USER");
+        }
+
+        // 更新小组信息
         LocalDateTime now = LocalDateTime.now();
-        groupMapper.update(id,name,description,leaderA,leaderB,leaderC,now);
+        groupMapper.update(groupId, name, description,
+                userService.getUserIdByUsername(groupDTO.getAdminAName()),
+                userService.getUserIdByUsername(groupDTO.getAdminBName()),
+                userService.getUserIdByUsername(groupDTO.getAdminCName()),
+                now);
     }
 
     @Override

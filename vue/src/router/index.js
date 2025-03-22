@@ -15,6 +15,7 @@ import LeaveManagement from '../views/LeaveManagement.vue'
 import ResourceSharing from '../views/ResourceSharing.vue'
 import HistoryAnnouncement from '../views/HistoryAnnouncement.vue'
 import Feedback from '../views/Feedback.vue'
+import UpdateLog from '../views/UpdateLog.vue'
 
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
@@ -145,6 +146,14 @@ const router = createRouter({
             title: '我要反馈',
             requiresAuth: true
           }
+        },
+        {
+          path: 'update-log',
+          name: 'UpdateLog',
+          component: UpdateLog,
+          meta: {
+            title: '关于更新'
+          }
         }
       ]
     }
@@ -168,8 +177,8 @@ router.beforeEach((to, from, next) => {
     return
   }
 
-  // 所有用户都可以访问"关于系统"页面
-  if (to.path === '/about') {
+  // 所有用户都可以访问"关于系统"和"关于更新"页面
+  if (to.path === '/about' || to.path === '/update-log') {
     next()
     return
   }

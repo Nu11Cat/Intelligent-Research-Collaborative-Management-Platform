@@ -2,11 +2,14 @@ package cn.nullcat.sckj.service.Impl;
 
 import cn.nullcat.sckj.mapper.AttendanceMapper;
 import cn.nullcat.sckj.mapper.EquipmentMapper;
+import cn.nullcat.sckj.mapper.GroupMapper;
 import cn.nullcat.sckj.mapper.UserMapper;
 import cn.nullcat.sckj.pojo.Attendance;
+import cn.nullcat.sckj.pojo.DTO.AdminAttendanceStatusDTO;
 import cn.nullcat.sckj.pojo.DTO.GroupAttendanceStatusDTO;
 import cn.nullcat.sckj.pojo.DTO.SignInDTO;
 import cn.nullcat.sckj.pojo.DTO.SignOutDTO;
+import cn.nullcat.sckj.pojo.Group;
 import cn.nullcat.sckj.pojo.PageBean;
 import cn.nullcat.sckj.pojo.Users;
 import cn.nullcat.sckj.service.AttendanceService;
@@ -19,6 +22,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -32,6 +36,8 @@ public class AttendanceServiceImpl implements AttendanceService {
     private UserService userService;
     @Autowired
     private UserMapper userMapper;
+    @Autowired
+    private GroupMapper groupMapper;
     /**
      * 判断今日是否签到1
      * @return
@@ -207,4 +213,47 @@ public class AttendanceServiceImpl implements AttendanceService {
         return statusDTO;
     }
 
+    /**
+     *
+     * @return
+     */
+    @Override
+    public AdminAttendanceStatusDTO getAdminTodayStatus() {
+        AdminAttendanceStatusDTO adminDTO = new AdminAttendanceStatusDTO();
+
+        // 1. 获取所有组
+        List<Group> allGroups = groupMapper.getAll(null,null,null);
+        adminDTO.setTotalGroups(allGroups.size());
+
+        // 2. 获取系统总人数
+        Integer totalUsers = userMapper.getTotalUsers();
+        adminDTO.setTotalUsers(totalUsers);
+
+        // 3. 获取各组统计
+        List<GroupAttendanceStatusDTO> groupStats = new ArrayList<>();
+        int totalCheckedIn = 0;
+        int totalCheckedOut = 0;
+        int totalLeave = 0;
+
+        // 复用现有方法获取各组统计
+        for (Group group : allGroups) {
+            GroupAttendanceStatusDTO groupStat = getTodayGroupAttendanceStatus(group.getId());
+            // 设置小组名称
+            groupStat.setGroupName(group.getName());
+            groupStats.add(groupStat);
+
+            // 累加总数
+            totalCheckedIn += groupStat.getCheckedInCount();
+            totalCheckedOut += groupStat.getCheckedOutCount();
+            totalLeave += groupStat.getLeaveCount();
+        }
+
+        // 4. 设置总体统计数据
+        adminDTO.setTotalCheckedIn(totalCheckedIn);
+        adminDTO.setTotalCheckedOut(totalCheckedOut);
+        adminDTO.setTotalLeave(totalLeave);
+        adminDTO.setGroupStats(groupStats);
+
+        return adminDTO;
+    }
 }

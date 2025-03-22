@@ -1,5 +1,6 @@
 package cn.nullcat.sckj.controller;
 
+import cn.nullcat.sckj.pojo.DTO.AdminAttendanceStatusDTO;
 import cn.nullcat.sckj.pojo.DTO.GroupAttendanceStatusDTO;
 import cn.nullcat.sckj.pojo.DTO.UserFormDTO;
 import cn.nullcat.sckj.pojo.PageBean;
@@ -138,15 +139,15 @@ public class UserContorller {
      * @return
      */
     @GetMapping("/changeRole")
-    public Result changeRole(@RequestParam Integer id,HttpServletRequest request) {
+    public Result changeRole(@RequestParam Integer id, @RequestParam String role, HttpServletRequest request) {
         Integer userIdNow = (Integer) request.getAttribute("userId");
         UserVO userVO = userservice.getById(userIdNow);
-        String role = userVO.getRole().toString();
+        String currentRole = userVO.getRole().toString();
         String admin = "ADMIN";
-        if(!role.equals(admin)){
+        if(!currentRole.equals(admin)){
             return Result.error("你无权修改用户身份");
         }
-        userservice.changeRole(id);
+        userservice.changeRole(id, role);
         return Result.success("身份修改成功");
     }
 
@@ -206,6 +207,16 @@ public class UserContorller {
         // 3. 调用service方法获取统计数据
         GroupAttendanceStatusDTO statusDTO = attendanceService.getTodayGroupAttendanceStatus(groupIdNow);
 
+        return Result.success(statusDTO);
+    }
+
+    /**
+     * 获取全部今日统计
+     * @return
+     */
+    @GetMapping("/admin/todayStatus")
+    public Result adminTodayStatus() {
+        AdminAttendanceStatusDTO statusDTO = attendanceService.getAdminTodayStatus();
         return Result.success(statusDTO);
     }
 }

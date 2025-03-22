@@ -80,7 +80,7 @@ public interface UserService {
      * 修改个人信息
      * @param id
      */
-    void changeRole(Integer id);
+    void changeRole(Integer id, String role);
 
     /**
      * 条件分页查询全部用户

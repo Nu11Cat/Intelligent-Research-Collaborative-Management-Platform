@@ -1,10 +1,11 @@
 <template>
   <div class="login-container">
+    <!-- 视频背景 -->
+    <video class="background-video" autoplay loop muted playsinline>
+      <source src="/background.mp4" type="video/mp4">
+    </video>
+    
     <div class="login-content">
-      <div class="login-left">
-        <h1>欢迎回来</h1>
-        <p>登录您的账号以继续</p>
-      </div>
       <div class="login-right">
         <div class="login-form">
           <h2>用户登录</h2>
@@ -87,27 +88,27 @@ export default {
           
           if (roleResponse.data.code === 1) {
             localStorage.setItem('userRole', roleResponse.data.data)
-            alert(response.data.msg)
+            this.$message.success(response.data.msg)
             this.$router.push('/')
           } else {
             console.error('获取角色失败:', roleResponse.data)
-            alert(roleResponse.data.msg || '获取用户角色失败')
+            this.$message.error(roleResponse.data.msg || '获取用户角色失败')
           }
         } else {
           console.error('登录失败:', response.data)
-          alert(response.data.msg || '登录失败')
+          this.$message.error(response.data.msg || '登录失败')
         }
       } catch (error) {
         console.error('请求错误:', error)
         if (error.response) {
           console.error('错误响应:', error.response.data)
-          alert(error.response.data.msg || '登录失败')
+          this.$message.error(error.response.data.msg || '登录失败')
         } else if (error.request) {
           console.error('请求未收到响应:', error.request)
-          alert('服务器无响应，请检查网络连接')
+          this.$message.error('服务器无响应，请检查网络连接')
         } else {
           console.error('请求配置错误:', error.message)
-          alert('请求配置错误')
+          this.$message.error('请求配置错误')
         }
       }
     }
@@ -121,43 +122,36 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.background-video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
 }
 
 .login-content {
   display: flex;
-  background: white;
+  background: rgba(255, 255, 255, 0.3);
   border-radius: 20px;
   overflow: hidden;
-  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
   width: 100%;
-  max-width: 1000px;
-}
-
-.login-left {
-  flex: 1;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 40px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  color: white;
-  text-align: center;
-}
-
-.login-left h1 {
-  font-size: 2.5em;
-  margin-bottom: 20px;
-}
-
-.login-left p {
-  font-size: 1.2em;
-  opacity: 0.9;
+  max-width: 500px;
+  position: relative;
+  z-index: 1;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .login-right {
-  flex: 1;
+  width: 100%;
   padding: 40px;
 }
 
@@ -193,15 +187,15 @@ input {
 }
 
 input:focus {
-  border-color: #667eea;
+  border-color: #00b8ff;
   outline: none;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  box-shadow: 0 0 0 3px rgba(0, 184, 255, 0.1);
 }
 
 .login-btn {
   width: 100%;
   padding: 12px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #00b8ff 0%, #0080ff 100%);
   color: white;
   border: none;
   border-radius: 8px;
@@ -213,7 +207,7 @@ input:focus {
 
 .login-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 5px 15px rgba(0, 184, 255, 0.3);
 }
 
 .form-footer {
@@ -223,7 +217,7 @@ input:focus {
 }
 
 .register-link {
-  color: #667eea;
+  color: #00b8ff;
   text-decoration: none;
   font-weight: 600;
   margin-left: 5px;
@@ -236,10 +230,6 @@ input:focus {
 @media (max-width: 768px) {
   .login-content {
     flex-direction: column;
-  }
-  
-  .login-left {
-    padding: 30px;
   }
   
   .login-right {

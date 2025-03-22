@@ -142,8 +142,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void changeRole(Integer id) {
-        userMapper.changeRole(id);
+    public void changeRole(Integer id, String role) {
+        userMapper.changeRole(id, role);
     }
 
     /**

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.nullcat.sckj.mapper.UserMapper">
+    <!--新增用户-->
+    <insert id="add" parameterType="cn.nullcat.sckj.pojo.Users">
+        INSERT INTO users
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="username != null">username,</if>
+            <if test="password != null">password,</if>
+            <if test="role != null">role,</if>
+            <if test="groupId != null">group_id,</if>
+            <if test="createdAt != null">created_at,</if>
+            <if test="updatedAt != null">updated_at,</if>
+        </trim>
+        <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
+            <if test="username != null">#{username},</if>
+            <if test="password != null">#{password},</if>
+            <if test="role != null">#{role},</if>
+            <if test="groupId != null">#{groupId},</if>
+            <if test="createdAt != null">#{createdAt},</if>
+            <if test="updatedAt != null">#{updatedAt},</if>
+        </trim>
+    </insert>
+    <select id="getAll" resultType="cn.nullcat.sckj.pojo.Users">
+        SELECT
+        a.id,
+        a.username,
+        a.role,
+        a.group_id as groupId,
+        g.name as groupName,
+        a.created_at as createdAt,
+        a.updated_at as updatedAt
+        FROM users a
+        LEFT JOIN user_groups g ON a.group_id = g.id
+        <where>
+            <if test="username != null">
+                AND a.username LIKE CONCAT('%', #{username}, '%')
+            </if>
+            <if test="groupName != null">
+                AND g.name LIKE CONCAT('%', #{groupName}, '%')
+            </if>
+            <if test="role != null and role != ''">
+                AND a.role = #{role}
+            </if>
+            <if test="begin != null and end != null">
+                AND DATE(a.created_at) BETWEEN #{begin} AND #{end}
+            </if>
+        </where>
+        ORDER BY a.created_at DESC
+    </select>
+
+
+
+
+</mapper>

@@ -60,4 +60,5 @@ public interface GroupMapper {
      * @return
      */
     List<Group> getAll(String name, LocalDate begin, LocalDate end);
+
 }

@@ -1,17 +1,48 @@
 <template>
   <div class="layout-container">
     <!-- 顶部导航栏 -->
-    <div class="top-nav">
-      <div class="logo">实验室管理系统</div>
-      <div class="nav-buttons">
+    <div class="navbar">
+      <div class="navbar-left">
+        <div class="logo">
+          <span>研智协同管理平台</span>
+        </div>
+      </div>
+      <div class="navbar-right">
+        <button @click="handleUpdateLog" class="update-btn">关于更新</button>
         <button @click="handleAbout" class="about-btn">关于系统</button>
         <div class="user-info">
           <el-tag size="small" :type="getRoleType(userRole)">{{ getRoleText(userRole) }}</el-tag>
           <span>{{ username }}</span>
+          <button @click="showChangePasswordDialog" class="change-pwd-btn">修改密码</button>
           <button @click="handleLogout" class="logout-btn">退出登录</button>
         </div>
       </div>
     </div>
+    
+    <!-- 修改密码对话框 -->
+    <el-dialog
+      v-model="passwordDialogVisible"
+      title="修改密码"
+      width="400px"
+    >
+      <el-form :model="passwordForm" :rules="passwordRules" ref="passwordFormRef" label-width="100px">
+        <el-form-item label="旧密码" prop="oldPassword">
+          <el-input v-model="passwordForm.oldPassword" type="password" show-password />
+        </el-form-item>
+        <el-form-item label="新密码" prop="newPassword">
+          <el-input v-model="passwordForm.newPassword" type="password" show-password />
+        </el-form-item>
+        <el-form-item label="确认密码" prop="confirmPassword">
+          <el-input v-model="passwordForm.confirmPassword" type="password" show-password />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="passwordDialogVisible = false">取消</el-button>
+          <el-button type="primary" @click="handleChangePassword">确定</el-button>
+        </span>
+      </template>
+    </el-dialog>
     
     <div class="main-content">
       <!-- 左侧菜单栏 -->
@@ -80,7 +111,35 @@ export default {
       mainMenuItems: [],
       activeMenu: this.$route.path,
       userRole: '',
-      groupName: ''
+      groupName: '',
+      passwordDialogVisible: false,
+      passwordForm: {
+        oldPassword: '',
+        newPassword: '',
+        confirmPassword: ''
+      },
+      passwordRules: {
+        oldPassword: [
+          { required: true, message: '请输入旧密码', trigger: 'blur' }
+        ],
+        newPassword: [
+          { required: true, message: '请输入新密码', trigger: 'blur' }
+        ],
+        confirmPassword: [
+          { required: true, message: '请确认新密码', trigger: 'blur' },
+          {
+            validator: (rule, value, callback) => {
+              if (value !== this.passwordForm.newPassword) {
+                callback(new Error('两次输入的密码不一致'))
+              } else {
+                callback()
+              }
+            },
+            trigger: 'blur'
+          }
+        ]
+      },
+      passwordFormRef: null
     }
   },
   created() {
@@ -142,6 +201,9 @@ export default {
     handleAbout() {
       this.$router.push('/about')
     },
+    handleUpdateLog() {
+      this.$router.push('/update-log')
+    },
     getRoleType(role) {
       const types = {
         'ADMIN': 'danger',
@@ -178,6 +240,42 @@ export default {
       } catch (error) {
         console.error('获取用户信息请求错误:', error)
       }
+    },
+    showChangePasswordDialog() {
+      this.passwordDialogVisible = true
+      this.passwordForm = {
+        oldPassword: '',
+        newPassword: '',
+        confirmPassword: ''
+      }
+    },
+    async handleChangePassword() {
+      try {
+        await this.$refs.passwordFormRef.validate()
+        const response = await axios.post('http://localhost:8080/user/updatePassword', this.passwordForm, {
+          headers: {
+            'token': localStorage.getItem('token')
+          }
+        })
+        
+        if (response.data.code === 1) {
+          this.$message.success('密码修改成功')
+          this.passwordDialogVisible = false
+          this.passwordForm = {
+            oldPassword: '',
+            newPassword: '',
+            confirmPassword: ''
+          }
+        } else {
+          this.$message.error(response.data.msg || '密码修改失败')
+        }
+      } catch (error) {
+        if (error.response) {
+          this.$message.error(error.response.data.msg || '密码修改失败')
+        } else {
+          this.$message.error('密码修改失败')
+        }
+      }
     }
   }
 }
@@ -190,14 +288,14 @@ export default {
   flex-direction: column;
 }
 
-.top-nav {
-  height: 90px;
-  background: #fff;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+.navbar {
+  height: 80px;
+  background: linear-gradient(to right, #409eff, #66b1ff);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 20px;
+  padding: 0 30px;
   position: fixed;
   top: 0;
   left: 0;
@@ -205,74 +303,74 @@ export default {
   z-index: 1000;
 }
 
-.logo {
-  font-size: 24px;
-  font-weight: bold;
-  color: #333;
-}
-
-.nav-buttons {
+.navbar-left {
   display: flex;
   align-items: center;
   gap: 20px;
 }
 
-.about-btn {
-  padding: 8px 16px;
-  border: none;
-  border-radius: 4px;
-  background: #409eff;
+.logo {
+  font-size: 28px;
+  font-weight: bold;
   color: white;
-  cursor: pointer;
-  transition: background 0.3s;
-  font-size: 16px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.about-btn:hover {
-  background: #66b1ff;
+.navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.navbar-right button {
+  padding: 8px 20px;
+  border: none;
+  border-radius: 20px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.update-btn, .about-btn, .logout-btn {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.update-btn:hover, .about-btn:hover, .logout-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
 }
 
 .user-info {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 15px;
+  color: white;
 }
 
 .el-tag {
-  margin-right: 4px;
-}
-
-.logout-btn {
-  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.2);
   border: none;
-  border-radius: 4px;
-  background: #f56c6c;
   color: white;
-  cursor: pointer;
-  transition: background 0.3s;
-  font-size: 16px;
-}
-
-.logout-btn:hover {
-  background: #f78989;
 }
 
 .main-content {
   display: flex;
-  margin-top: 90px;
+  margin-top: 80px;
   flex: 1;
 }
 
 .side-menu {
-  width: 360px;
+  width: 280px;
   background: #fff;
-  box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
   position: fixed;
-  top: 90px;
+  top: 80px;
   bottom: 0;
   left: 0;
   display: flex;
   flex-direction: column;
+  border-right: 1px solid #e6e6e6;
 }
 
 .menu-content {
@@ -284,53 +382,46 @@ export default {
 .menu-footer {
   padding: 20px 0;
   background: #fff;
-}
-
-.el-menu-vertical {
-  border-right: none;
-}
-
-.el-menu-item {
-  height: 50px;
-  line-height: 50px;
-  padding: 0 20px;
-  font-size: 14px;
-}
-
-.el-menu-item.is-active {
-  background-color: #ecf5ff !important;
-  color: #409eff !important;
-  border-right: 3px solid #409eff;
-}
-
-.el-menu-item:hover {
-  background-color: #f5f7fa !important;
-}
-
-.content-area {
-  flex: 1;
-  margin-left: 360px;
-  padding: 20px;
-  background: #f5f7fa;
-  min-height: calc(100vh - 90px);
+  border-top: 1px solid #f0f0f0;
 }
 
 .menu-item {
   padding: 16px 24px;
   cursor: pointer;
-  transition: all 0.3s;
-  color: #333;
-  font-size: 16px;
+  transition: all 0.3s ease;
+  color: #606266;
+  font-size: 15px;
+  position: relative;
 }
 
 .menu-item:hover {
   background: #f5f7fa;
+  color: #409eff;
 }
 
 .menu-item.active {
   background: #ecf5ff;
   color: #409eff;
-  border-right: 3px solid #409eff;
+  font-weight: 500;
+}
+
+.menu-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: #409eff;
+  border-radius: 0 2px 2px 0;
+}
+
+.content-area {
+  flex: 1;
+  margin-left: 280px;
+  padding: 30px;
+  background: #f5f7fa;
+  min-height: calc(100vh - 80px);
 }
 
 .development-notice {
@@ -345,5 +436,27 @@ export default {
   height: 1px;
   background-color: #e6e6e6;
   margin: 8px 0;
+}
+
+.change-pwd-btn {
+  padding: 8px 20px;
+  border: none;
+  border-radius: 20px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 14px;
+  font-weight: 500;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.change-pwd-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
 }
 </style> 

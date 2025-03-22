@@ -1,5 +1,6 @@
 package cn.nullcat.sckj.service;
 
+import cn.nullcat.sckj.pojo.DTO.AdminAttendanceStatusDTO;
 import cn.nullcat.sckj.pojo.DTO.GroupAttendanceStatusDTO;
 import cn.nullcat.sckj.pojo.DTO.SignInDTO;
 import cn.nullcat.sckj.pojo.DTO.SignOutDTO;
@@ -73,4 +74,10 @@ public interface AttendanceService {
      * @return
      */
     GroupAttendanceStatusDTO getTodayGroupAttendanceStatus(Integer groupIdNow);
+
+    /**
+     *
+     * @return
+     */
+    AdminAttendanceStatusDTO getAdminTodayStatus();
 }

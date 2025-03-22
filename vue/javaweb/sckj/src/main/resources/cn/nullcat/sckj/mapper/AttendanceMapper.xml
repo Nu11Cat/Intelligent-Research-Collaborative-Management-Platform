@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.nullcat.sckj.mapper.AttendanceMapper">
+    <select id="allRecord" resultType="cn.nullcat.sckj.pojo.Attendance">
+        SELECT
+        a.id,
+        a.user_id as userId,
+        a.group_id as groupId,
+        a.username as userName,
+        a.check_in as checkIn,
+        a.check_out as checkOut,
+        g.name as groupName
+        FROM attendance a
+        LEFT JOIN user_groups g ON a.group_id = g.id
+        <where>
+            <if test="username != null">AND a.user_id IN (SELECT id FROM users WHERE username LIKE CONCAT('%', #{username}, '%'))</if>
+            <if test="groupName != null">AND g.name LIKE CONCAT('%', #{groupName}, '%')</if>
+            <if test="begin != null and end != null">AND DATE(a.check_in) BETWEEN #{begin} AND #{end}</if>
+        </where>
+        ORDER BY a.check_in DESC
+    </select>
+    <select id="myRecord" resultType="cn.nullcat.sckj.pojo.Attendance">
+        SELECT
+        a.id,
+        a.user_id as userId,
+        a.group_id as groupId,
+        a.username as userName,
+        a.check_in as checkIn,
+        a.check_out as checkOut,
+        g.name as groupName
+        FROM attendance a
+        LEFT JOIN user_groups g ON a.group_id = g.id
+        <where>
+            a.user_id = #{userIdNow}
+            <if test="begin != null and end != null">
+                and DATE(a.check_in) between #{begin} and #{end}
+            </if>
+        </where>
+        order by a.check_in desc
+    </select>
+    <select id="groupRecord" resultType="cn.nullcat.sckj.pojo.Attendance">
+        SELECT
+        a.id,
+        a.user_id as userId,
+        a.group_id as groupId,
+        a.username as userName,
+        a.check_in as checkIn,
+        a.check_out as checkOut,
+        g.name as groupName
+        FROM attendance a
+        LEFT JOIN user_groups g ON a.group_id = g.id
+        <where>
+            a.group_id = #{groupIdNow}
+            <if test="begin != null and end != null">
+                AND DATE(a.check_in) BETWEEN #{begin} AND #{end}
+            </if>
+        </where>
+        ORDER BY a.check_in DESC
+    </select>
+    <select id="getTodayGroupAttendance" resultType="cn.nullcat.sckj.pojo.Attendance">
+        SELECT
+            id,
+            user_id as userId,
+            group_id as groupId,
+            username as userName,
+            check_in as checkIn,
+            check_out as checkOut,
+            is_leave as isLeave
+        FROM attendance
+        WHERE group_id = #{groupIdNow}
+          AND DATE(check_in) = #{today}
+    </select>
+
+
+</mapper>
