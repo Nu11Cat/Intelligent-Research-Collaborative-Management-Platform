@@ -1,14 +1,10 @@
 <template>
-  <div class="admin-container">
-    <h2 class="page-title">
-      <el-icon><Setting /></el-icon>
-      考勤管理
-    </h2>
+  <div class="personal-attendance-container">
+    <h2 class="page-title">个人考勤情况</h2>
     
-    <!-- 全部考勤记录查看 -->
     <div class="attendance-section">
       <div class="section-header">
-        <h3>全部考勤记录</h3>
+        <h3>考勤记录</h3>
         <el-button type="primary" @click="refreshData">
           <el-icon><Refresh /></el-icon>
           刷新数据
@@ -17,27 +13,11 @@
       <div class="query-form">
         <el-form :inline="true" :model="queryForm" class="demo-form-inline">
           <div class="form-row">
-            <el-form-item label="用户名">
-              <el-input 
-                v-model="queryForm.username" 
-                placeholder="请输入用户名" 
-                clearable
-              >
-                <template #prefix>
-                  <el-icon><User /></el-icon>
-                </template>
-              </el-input>
-            </el-form-item>
-            <el-form-item label="组别名称">
-              <el-input 
-                v-model="queryForm.groupName" 
-                placeholder="请输入组别名称" 
-                clearable
-              >
-                <template #prefix>
-                  <el-icon><FolderOpened /></el-icon>
-                </template>
-              </el-input>
+            <el-form-item label="请假状态">
+              <el-select v-model="queryForm.isLeave" placeholder="请选择" clearable>
+                <el-option label="已请假" :value="1" />
+                <el-option label="未请假" :value="0" />
+              </el-select>
             </el-form-item>
             <el-form-item label="日期范围">
               <el-date-picker
@@ -54,6 +34,8 @@
                 </template>
               </el-date-picker>
             </el-form-item>
+          </div>
+          <div class="form-row">
             <el-form-item>
               <el-button type="primary" @click="handleQuery">
                 <el-icon><Search /></el-icon>
@@ -82,8 +64,6 @@
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="userName" label="用户名" min-width="150" align="center" />
-        <el-table-column prop="groupName" label="组别名称" min-width="150" align="center" />
         <el-table-column prop="checkIn" label="签到时间" min-width="200" align="center">
           <template #default="scope">
             <el-tag 
@@ -110,7 +90,7 @@
           <template #default="scope">
             <el-tag 
               size="small" 
-              :type="scope.row.isLeave ? 'danger' : 'success'"
+              :type="scope.row.isLeave ? 'info' : 'success'"
               effect="light"
             >
               {{ scope.row.isLeave ? '已请假' : '未请假' }}
@@ -137,39 +117,29 @@
 
 <script>
 import { ElMessage } from 'element-plus'
-import request from '../utils/request'
+import request from '@/utils/request'
 import {
-  User,
-  FolderOpened,
   Calendar,
   Search,
-  Refresh,
-  Setting
+  Refresh
 } from '@element-plus/icons-vue'
 
 export default {
-  name: 'AdminView',
+  name: 'PersonalAttendance',
   components: {
-    User,
-    FolderOpened,
     Calendar,
     Search,
-    Refresh,
-    Setting
+    Refresh
   },
   data() {
     return {
       loading: false,
-      // 查询表单数据
       queryForm: {
-        username: '',
-        groupName: '',
         dateRange: [],
         begin: '',
         end: '',
         isLeave: ''
       },
-      // 表格数据
       attendanceRecords: [],
       total: 0,
       page: 1,
@@ -188,7 +158,7 @@ export default {
     this.queryForm.end = formattedDate
     
     // 获取考勤记录
-    this.getAttendanceRecords()
+    this.getPersonalAttendance()
   },
   methods: {
     // 日期范围改变
@@ -204,28 +174,25 @@ export default {
     // 查询按钮点击事件
     handleQuery() {
       this.page = 1 // 重置页码
-      this.getAttendanceRecords()
+      this.getPersonalAttendance()
     },
     // 重置查询
     resetQuery() {
-      this.queryForm.username = ''
-      this.queryForm.groupName = ''
       this.queryForm.dateRange = []
       this.queryForm.begin = ''
       this.queryForm.end = ''
       this.queryForm.isLeave = ''
       this.page = 1 // 重置页码
-      this.getAttendanceRecords()
+      this.getPersonalAttendance()
     },
     // 获取考勤记录
-    async getAttendanceRecords() {
+    async getPersonalAttendance() {
       try {
-        const response = await request.get('/attendance/allRecords', {
+        this.loading = true
+        const response = await request.get('/attendance/personalAttendance', {
           params: {
             page: this.page,
             pageSize: this.pageSize,
-            username: this.queryForm.username,
-            groupName: this.queryForm.groupName,
             begin: this.queryForm.begin,
             end: this.queryForm.end,
             isLeave: this.queryForm.isLeave
@@ -233,8 +200,6 @@ export default {
         })
         
         if (response.data.code === 1) {
-          console.log('后端返回的原始数据:', response.data)
-          console.log('考勤记录数据:', response.data.data.rows)
           this.attendanceRecords = response.data.data.rows
           this.total = response.data.data.total
         } else {
@@ -243,28 +208,30 @@ export default {
       } catch (error) {
         console.error('获取考勤记录错误:', error)
         ElMessage.error('获取考勤记录失败')
+      } finally {
+        this.loading = false
       }
     },
     // 分页大小改变
     handleSizeChange(val) {
       this.pageSize = val
-      this.getAttendanceRecords()
+      this.getPersonalAttendance()
     },
     // 页码改变
     handleCurrentChange(val) {
       this.page = val
-      this.getAttendanceRecords()
+      this.getPersonalAttendance()
     },
     // 刷新数据
     refreshData() {
-      this.getAttendanceRecords()
+      this.getPersonalAttendance()
     }
   }
 }
 </script>
 
 <style scoped>
-.admin-container {
+.personal-attendance-container {
   padding: 20px;
 }
 
@@ -273,16 +240,6 @@ export default {
   font-size: 24px;
   color: #303133;
   font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding-left: 15px;
-  border-left: 4px solid #409EFF;
-}
-
-.page-title .el-icon {
-  font-size: 24px;
-  color: #409EFF;
 }
 
 .attendance-section {
@@ -351,19 +308,16 @@ export default {
 :deep(.el-table) {
   border-radius: 8px;
   overflow: hidden;
-  margin-top: 10px;
 }
 
 :deep(.el-table th) {
   background-color: #f5f7fa;
   color: #606266;
   font-weight: 600;
-  padding: 12px 0;
 }
 
 :deep(.el-table td) {
   padding: 12px 0;
-  color: #606266;
 }
 
 :deep(.el-table--striped .el-table__body tr.el-table__row--striped td) {
@@ -372,24 +326,6 @@ export default {
 
 :deep(.el-table--enable-row-hover .el-table__body tr:hover > td) {
   background-color: #f5f7fa;
-}
-
-:deep(.el-table .cell) {
-  padding: 0 12px;
-}
-
-:deep(.el-tag) {
-  border-radius: 4px;
-  padding: 0 12px;
-  height: 24px;
-  line-height: 22px;
-  font-size: 12px;
-}
-
-:deep(.el-tag--info) {
-  background-color: #f4f4f5;
-  border-color: #e9e9eb;
-  color: #909399;
 }
 
 .pagination {

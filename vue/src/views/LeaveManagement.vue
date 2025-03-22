@@ -1,12 +1,18 @@
 <template>
   <div class="leave-management-container">
-    <h2>请假管理</h2>
+    <div class="page-title">
+      <el-icon><Calendar /></el-icon>
+      <span>请假管理</span>
+    </div>
     
     <!-- 待审核请假卡片 -->
-    <el-card class="leave-card">
+    <el-card class="leave-card" shadow="hover">
       <template #header>
         <div class="card-header">
-          <span>待审核请假</span>
+          <div class="header-left">
+            <el-icon><Timer /></el-icon>
+            <span>待审核请假</span>
+          </div>
           <div class="date-picker-container">
             <el-date-picker
               v-model="unauditedDateRange"
@@ -15,21 +21,78 @@
               start-placeholder="开始日期"
               end-placeholder="结束日期"
               @change="handleUnauditedDateChange"
-            />
-            <el-button type="info" size="small" @click="resetUnauditedDate">重置</el-button>
+            >
+              <template #prefix>
+                <el-icon><Calendar /></el-icon>
+              </template>
+            </el-date-picker>
+            <el-button type="info" size="small" @click="resetUnauditedDate">
+              <el-icon><Refresh /></el-icon>
+              重置
+            </el-button>
           </div>
         </div>
       </template>
       
-      <el-table :data="unauditedLeaves" style="width: 100%">
-        <el-table-column prop="userName" label="申请人" width="120" />
-        <el-table-column prop="leaveDate" label="请假日期" width="120" />
-        <el-table-column prop="reason" label="请假原因" />
-        <el-table-column prop="createTime" label="申请时间" width="180" />
-        <el-table-column label="操作" width="200">
+      <el-table :data="unauditedLeaves" style="width: 100%" stripe border v-loading="loading">
+        <el-table-column prop="userName" label="申请人" min-width="120">
+          <template #header>
+            <div class="table-header">
+              <el-icon><User /></el-icon>
+              <span>申请人</span>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="leaveDate" label="请假日期" min-width="150">
+          <template #header>
+            <div class="table-header">
+              <el-icon><Calendar /></el-icon>
+              <span>请假日期</span>
+            </div>
+          </template>
           <template #default="scope">
-            <el-button type="success" size="small" @click="handleApprove(scope.row)">通过</el-button>
-            <el-button type="danger" size="small" @click="handleReject(scope.row)">拒绝</el-button>
+            <el-tag size="small" type="success" effect="light">
+              {{ scope.row.leaveDate }}
+            </el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column prop="reason" label="请假原因">
+          <template #header>
+            <div class="table-header">
+              <el-icon><Document /></el-icon>
+              <span>请假原因</span>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="createTime" label="申请时间" min-width="180">
+          <template #header>
+            <div class="table-header">
+              <el-icon><Timer /></el-icon>
+              <span>申请时间</span>
+            </div>
+          </template>
+          <template #default="scope">
+            <el-tag size="small" type="info" effect="light">
+              {{ formatDate(scope.row.createTime) }}
+            </el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" min-width="200" align="center">
+          <template #header>
+            <div class="table-header">
+              <el-icon><Operation /></el-icon>
+              <span>操作</span>
+            </div>
+          </template>
+          <template #default="scope">
+            <el-button type="success" size="small" @click="handleApprove(scope.row)">
+              <el-icon><CircleCheckFilled /></el-icon>
+              通过
+            </el-button>
+            <el-button type="danger" size="small" @click="handleReject(scope.row)">
+              <el-icon><CircleCloseFilled /></el-icon>
+              拒绝
+            </el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -48,10 +111,13 @@
     </el-card>
 
     <!-- 全部审核信息卡片 -->
-    <el-card class="leave-card">
+    <el-card class="leave-card" shadow="hover">
       <template #header>
         <div class="card-header">
-          <span>全部审核信息</span>
+          <div class="header-left">
+            <el-icon><List /></el-icon>
+            <span>全部审核信息</span>
+          </div>
           <div class="date-picker-container">
             <el-date-picker
               v-model="allDateRange"
@@ -60,28 +126,112 @@
               start-placeholder="开始日期"
               end-placeholder="结束日期"
               @change="handleAllDateChange"
-            />
-            <el-button type="info" size="small" @click="resetAllDate">重置</el-button>
+            >
+              <template #prefix>
+                <el-icon><Calendar /></el-icon>
+              </template>
+            </el-date-picker>
+            <el-button type="info" size="small" @click="resetAllDate">
+              <el-icon><Refresh /></el-icon>
+              重置
+            </el-button>
           </div>
         </div>
       </template>
       
-      <el-table :data="allLeaves" style="width: 100%">
-        <el-table-column prop="userName" label="申请人" width="120" />
-        <el-table-column prop="groupName" label="所属小组" width="120" />
-        <el-table-column prop="leaveDate" label="请假日期" width="120" />
-        <el-table-column prop="reason" label="请假原因" />
-        <el-table-column prop="status" label="状态" width="100">
+      <el-table :data="allLeaves" style="width: 100%" stripe border v-loading="loading">
+        <el-table-column prop="userName" label="申请人" min-width="120">
+          <template #header>
+            <div class="table-header">
+              <el-icon><User /></el-icon>
+              <span>申请人</span>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="groupName" label="所属小组" min-width="120">
+          <template #header>
+            <div class="table-header">
+              <el-icon><Folder /></el-icon>
+              <span>所属小组</span>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="leaveDate" label="请假日期" min-width="150">
+          <template #header>
+            <div class="table-header">
+              <el-icon><Calendar /></el-icon>
+              <span>请假日期</span>
+            </div>
+          </template>
           <template #default="scope">
-            <el-tag :type="getStatusType(scope.row.status)">
+            <el-tag size="small" type="success" effect="light">
+              {{ scope.row.leaveDate }}
+            </el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column prop="reason" label="请假原因">
+          <template #header>
+            <div class="table-header">
+              <el-icon><Document /></el-icon>
+              <span>请假原因</span>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="status" label="状态" min-width="100" align="center">
+          <template #header>
+            <div class="table-header">
+              <el-icon><InfoFilled /></el-icon>
+              <span>状态</span>
+            </div>
+          </template>
+          <template #default="scope">
+            <el-tag :type="getStatusType(scope.row.status)" effect="light">
               {{ getStatusText(scope.row.status) }}
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="createTime" label="申请时间" width="180" />
-        <el-table-column prop="approveTime" label="审核时间" width="180" />
-        <el-table-column prop="approverName" label="审核人" width="120" />
-        <el-table-column prop="approverComment" label="审核意见" />
+        <el-table-column prop="createTime" label="申请时间" min-width="180">
+          <template #header>
+            <div class="table-header">
+              <el-icon><Timer /></el-icon>
+              <span>申请时间</span>
+            </div>
+          </template>
+          <template #default="scope">
+            <el-tag size="small" type="info" effect="light">
+              {{ formatDate(scope.row.createTime) }}
+            </el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column prop="approveTime" label="审核时间" min-width="180">
+          <template #header>
+            <div class="table-header">
+              <el-icon><Timer /></el-icon>
+              <span>审核时间</span>
+            </div>
+          </template>
+          <template #default="scope">
+            <el-tag size="small" type="info" effect="light">
+              {{ scope.row.approveTime ? formatDate(scope.row.approveTime) : '-' }}
+            </el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column prop="approverName" label="审核人" min-width="120">
+          <template #header>
+            <div class="table-header">
+              <el-icon><User /></el-icon>
+              <span>审核人</span>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="approverComment" label="审核意见">
+          <template #header>
+            <div class="table-header">
+              <el-icon><ChatDotRound /></el-icon>
+              <span>审核意见</span>
+            </div>
+          </template>
+        </el-table-column>
       </el-table>
       
       <div class="pagination-container">
@@ -102,16 +252,17 @@
       v-model="approveDialogVisible"
       :title="approveType === 'approve' ? '通过请假申请' : '拒绝请假申请'"
       width="500px"
+      :close-on-click-modal="false"
     >
       <el-form :model="approveForm" label-width="100px">
         <el-form-item label="申请人">
-          <span>{{ approveForm.userName }}</span>
+          <el-tag size="small" type="info" effect="light">{{ approveForm.userName }}</el-tag>
         </el-form-item>
         <el-form-item label="请假时间">
-          <span>{{ approveForm.leaveDate }}</span>
+          <el-tag size="small" type="success" effect="light">{{ approveForm.leaveDate }}</el-tag>
         </el-form-item>
         <el-form-item label="请假原因">
-          <span>{{ approveForm.reason }}</span>
+          <el-tag size="small" type="info" effect="light">{{ approveForm.reason }}</el-tag>
         </el-form-item>
         <el-form-item label="审核意见">
           <el-input
@@ -125,7 +276,10 @@
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="approveDialogVisible = false">取消</el-button>
-          <el-button type="primary" @click="submitApprove">确定</el-button>
+          <el-button type="primary" @click="submitApprove">
+            <el-icon><CircleCheckFilled /></el-icon>
+            确定
+          </el-button>
         </span>
       </template>
     </el-dialog>
@@ -135,9 +289,37 @@
 <script>
 import axios from 'axios'
 import { ElMessage } from 'element-plus'
+import {
+  Calendar,
+  Timer,
+  User,
+  Document,
+  Operation,
+  CircleCheckFilled,
+  CircleCloseFilled,
+  Refresh,
+  List,
+  InfoFilled,
+  Folder,
+  ChatDotRound
+} from '@element-plus/icons-vue'
 
 export default {
   name: 'LeaveManagement',
+  components: {
+    Calendar,
+    Timer,
+    User,
+    Document,
+    Operation,
+    CircleCheckFilled,
+    CircleCloseFilled,
+    Refresh,
+    List,
+    InfoFilled,
+    Folder,
+    ChatDotRound
+  },
   data() {
     return {
       // 待审核请假数据
@@ -163,7 +345,8 @@ export default {
         leaveDate: '',
         reason: '',
         approverComment: ''
-      }
+      },
+      loading: false
     }
   },
   created() {
@@ -354,16 +537,51 @@ export default {
 <style scoped>
 .leave-management-container {
   padding: 20px;
+  background-color: #f5f7fa;
+  min-height: 100vh;
+}
+
+.page-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+  padding-left: 12px;
+  border-left: 4px solid #409EFF;
+  font-size: 18px;
+  color: #303133;
+  font-weight: 600;
 }
 
 .leave-card {
   margin-bottom: 20px;
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.leave-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
 }
 
 .card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  color: #303133;
+}
+
+.date-picker-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .pagination-container {
@@ -378,9 +596,29 @@ export default {
   gap: 10px;
 }
 
-.date-picker-container {
+.table-header {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 4px;
+}
+
+.table-header .el-icon {
+  font-size: 16px;
+  color: #606266;
+}
+
+:deep(.el-button) {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+:deep(.el-card__header) {
+  padding: 15px 20px;
+  border-bottom: 1px solid #ebeef5;
+}
+
+:deep(.el-card__body) {
+  padding: 20px;
 }
 </style> 

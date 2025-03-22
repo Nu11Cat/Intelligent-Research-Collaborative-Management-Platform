@@ -1,16 +1,21 @@
 <template>
   <div class="register-container">
+    <!-- 视频背景 -->
+    <video class="background-video" autoplay loop muted playsinline>
+      <source src="/background.mp4" type="video/mp4">
+    </video>
+    
+    <!-- 添加遮罩层 -->
+    <div class="overlay"></div>
+    
     <div class="register-content">
-      <div class="register-left">
-        <h1>加入我们</h1>
-        <p>创建新账号，开启您的旅程</p>
-      </div>
-      <div class="register-right">
-        <div class="register-form">
-          <h2>用户注册</h2>
-          <form @submit.prevent="handleRegister">
-            <div class="form-group">
-              <label>用户名</label>
+      <div class="register-form">
+        <h2>用户注册</h2>
+        <form @submit.prevent="handleRegister">
+          <div class="form-group">
+            <label>用户名</label>
+            <div class="input-wrapper">
+              <i class="el-icon-user"></i>
               <input 
                 type="text" 
                 v-model="username" 
@@ -18,8 +23,11 @@
                 required
               >
             </div>
-            <div class="form-group">
-              <label>密码</label>
+          </div>
+          <div class="form-group">
+            <label>密码</label>
+            <div class="input-wrapper">
+              <i class="el-icon-lock"></i>
               <input 
                 type="password" 
                 v-model="password" 
@@ -27,8 +35,11 @@
                 required
               >
             </div>
-            <div class="form-group">
-              <label>确认密码</label>
+          </div>
+          <div class="form-group">
+            <label>确认密码</label>
+            <div class="input-wrapper">
+              <i class="el-icon-lock"></i>
               <input 
                 type="password" 
                 v-model="confirmPassword" 
@@ -36,15 +47,21 @@
                 required
               >
             </div>
-            <div class="form-group">
-              <button type="submit" class="register-btn">注册</button>
-            </div>
-            <div class="form-footer">
-              <span>已有账号？</span>
-              <router-link to="/login" class="login-link">立即登录</router-link>
-            </div>
-          </form>
-        </div>
+          </div>
+          <div class="form-group">
+            <button type="submit" class="register-btn">注册</button>
+          </div>
+          <div class="form-footer">
+            <span>已有账号？</span>
+            <router-link to="/login" class="login-link">立即登录</router-link>
+          </div>
+          <div class="agreement-links">
+            <span>注册即表示您同意</span>
+            <router-link to="/user-agreement" class="agreement-link">《用户协议》</router-link>
+            <span>和</span>
+            <router-link to="/privacy-policy" class="agreement-link">《隐私政策》</router-link>
+          </div>
+        </form>
       </div>
     </div>
   </div>
@@ -99,55 +116,57 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.background-video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+}
+
+/* 添加遮罩层样式 */
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.3);
+  z-index: 1;
 }
 
 .register-content {
   display: flex;
-  background: white;
+  background: rgba(255, 255, 255, 0.4);
   border-radius: 20px;
   overflow: hidden;
-  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
   width: 100%;
-  max-width: 1000px;
-}
-
-.register-left {
-  flex: 1;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 40px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  color: white;
-  text-align: center;
-}
-
-.register-left h1 {
-  font-size: 2.5em;
-  margin-bottom: 20px;
-}
-
-.register-left p {
-  font-size: 1.2em;
-  opacity: 0.9;
-}
-
-.register-right {
-  flex: 1;
+  max-width: 500px;
+  position: relative;
+  z-index: 2;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   padding: 40px;
 }
 
 .register-form {
   max-width: 400px;
   margin: 0 auto;
+  width: 100%;
 }
 
 .register-form h2 {
   color: #333;
   margin-bottom: 30px;
   text-align: center;
+  font-size: 28px;
 }
 
 .form-group {
@@ -157,29 +176,43 @@ export default {
 .form-group label {
   display: block;
   margin-bottom: 8px;
-  color: #666;
+  color: #333;
   font-weight: 500;
+}
+
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-wrapper i {
+  position: absolute;
+  left: 15px;
+  color: #666;
+  font-size: 18px;
 }
 
 input {
   width: 100%;
-  padding: 12px 15px;
+  padding: 12px 15px 12px 45px;
   border: 2px solid #e1e1e1;
   border-radius: 8px;
   font-size: 16px;
   transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.9);
 }
 
 input:focus {
-  border-color: #667eea;
+  border-color: #4a90e2;
   outline: none;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
 }
 
 .register-btn {
   width: 100%;
   padding: 12px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
   color: white;
   border: none;
   border-radius: 8px;
@@ -191,17 +224,17 @@ input:focus {
 
 .register-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 5px 15px rgba(74, 144, 226, 0.3);
 }
 
 .form-footer {
   text-align: center;
   margin-top: 20px;
-  color: #666;
+  color: #333;
 }
 
 .login-link {
-  color: #667eea;
+  color: #4a90e2;
   text-decoration: none;
   font-weight: 600;
   margin-left: 5px;
@@ -211,16 +244,25 @@ input:focus {
   text-decoration: underline;
 }
 
+.agreement-links {
+  text-align: center;
+  margin-top: 15px;
+  color: #333;
+  font-size: 14px;
+}
+
+.agreement-link {
+  color: #4a90e2;
+  text-decoration: none;
+}
+
+.agreement-link:hover {
+  text-decoration: underline;
+}
+
 @media (max-width: 768px) {
   .register-content {
-    flex-direction: column;
-  }
-  
-  .register-left {
-    padding: 30px;
-  }
-  
-  .register-right {
+    margin: 20px;
     padding: 30px;
   }
 }

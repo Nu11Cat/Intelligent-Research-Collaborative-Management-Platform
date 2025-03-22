@@ -5,6 +5,9 @@
       <source src="/background.mp4" type="video/mp4">
     </video>
     
+    <!-- 添加遮罩层 -->
+    <div class="overlay"></div>
+    
     <div class="login-content">
       <div class="login-right">
         <div class="login-form">
@@ -12,23 +15,29 @@
           <form @submit.prevent="handleLogin">
             <div class="form-group">
               <label>用户名</label>
-              <input 
-                type="text" 
-                v-model="username" 
-                placeholder="请输入用户名"
-                required
-                autocomplete="username"
-              >
+              <div class="input-wrapper">
+                <i class="el-icon-user"></i>
+                <input 
+                  type="text" 
+                  v-model="username" 
+                  placeholder="请输入用户名"
+                  required
+                  autocomplete="username"
+                >
+              </div>
             </div>
             <div class="form-group">
               <label>密码</label>
-              <input 
-                type="password" 
-                v-model="password" 
-                placeholder="请输入密码"
-                required
-                autocomplete="current-password"
-              >
+              <div class="input-wrapper">
+                <i class="el-icon-lock"></i>
+                <input 
+                  type="password" 
+                  v-model="password" 
+                  placeholder="请输入密码"
+                  required
+                  autocomplete="current-password"
+                >
+              </div>
             </div>
             <div class="form-group">
               <button type="submit" class="login-btn">登录</button>
@@ -136,16 +145,27 @@ export default {
   z-index: 0;
 }
 
+/* 添加遮罩层样式 */
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.3);
+  z-index: 1;
+}
+
 .login-content {
   display: flex;
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.4);
   border-radius: 20px;
   overflow: hidden;
   box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
   width: 100%;
   max-width: 500px;
   position: relative;
-  z-index: 1;
+  z-index: 2;
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
@@ -164,6 +184,7 @@ export default {
   color: #333;
   margin-bottom: 30px;
   text-align: center;
+  font-size: 28px;
 }
 
 .form-group {
@@ -173,29 +194,43 @@ export default {
 .form-group label {
   display: block;
   margin-bottom: 8px;
-  color: #666;
+  color: #333;
   font-weight: 500;
+}
+
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-wrapper i {
+  position: absolute;
+  left: 15px;
+  color: #666;
+  font-size: 18px;
 }
 
 input {
   width: 100%;
-  padding: 12px 15px;
+  padding: 12px 15px 12px 45px;
   border: 2px solid #e1e1e1;
   border-radius: 8px;
   font-size: 16px;
   transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.9);
 }
 
 input:focus {
-  border-color: #00b8ff;
+  border-color: #4a90e2;
   outline: none;
-  box-shadow: 0 0 0 3px rgba(0, 184, 255, 0.1);
+  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
 }
 
 .login-btn {
   width: 100%;
   padding: 12px;
-  background: linear-gradient(135deg, #00b8ff 0%, #0080ff 100%);
+  background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
   color: white;
   border: none;
   border-radius: 8px;
@@ -207,17 +242,17 @@ input:focus {
 
 .login-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(0, 184, 255, 0.3);
+  box-shadow: 0 5px 15px rgba(74, 144, 226, 0.3);
 }
 
 .form-footer {
   text-align: center;
   margin-top: 20px;
-  color: #666;
+  color: #333;
 }
 
 .register-link {
-  color: #00b8ff;
+  color: #4a90e2;
   text-decoration: none;
   font-weight: 600;
   margin-left: 5px;
@@ -229,7 +264,7 @@ input:focus {
 
 @media (max-width: 768px) {
   .login-content {
-    flex-direction: column;
+    margin: 20px;
   }
   
   .login-right {

@@ -1,89 +1,148 @@
 <template>
   <div class="recruitment-container">
-    <!-- 搜索表单 -->
-    <el-form :inline="true" :model="queryForm" class="search-form">
-      <el-form-item label="招募标题">
-        <el-input v-model="queryForm.title" placeholder="请输入招募标题" />
-      </el-form-item>
-      <el-form-item label="日期范围">
-        <el-date-picker
-          v-model="queryForm.dateRange"
-          type="daterange"
-          range-separator="至"
-          start-placeholder="开始日期"
-          end-placeholder="结束日期"
+    <div class="page-title">
+      <el-icon><Bell /></el-icon>
+      <span>团队招募</span>
+    </div>
+    <div class="attendance-section">
+      <div class="section-header">
+        <h3>招募列表</h3>
+      </div>
+      <!-- 搜索表单 -->
+      <el-form :inline="true" :model="queryForm" class="query-form">
+        <el-form-item label="招募标题">
+          <el-input v-model="queryForm.title" placeholder="请输入招募标题">
+            <template #prefix>
+              <el-icon><Document /></el-icon>
+            </template>
+          </el-input>
+        </el-form-item>
+        <el-form-item label="日期范围">
+          <el-date-picker
+            v-model="queryForm.dateRange"
+            type="daterange"
+            range-separator="至"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+          >
+            <template #prefix>
+              <el-icon><Calendar /></el-icon>
+            </template>
+          </el-date-picker>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="handleSearch">
+            <el-icon><Search /></el-icon>
+            搜索
+          </el-button>
+          <el-button @click="handleReset">
+            <el-icon><Refresh /></el-icon>
+            重置
+          </el-button>
+          <el-button type="success" @click="handleAdd">
+            <el-icon><Plus /></el-icon>
+            发布招募
+          </el-button>
+        </el-form-item>
+      </el-form>
+
+      <!-- 招募列表 -->
+      <el-table :data="recruitmentList" style="width: 100%" v-loading="loading" stripe border>
+        <el-table-column prop="title" label="招募标题">
+          <template #header>
+            <div class="table-header">
+              <el-icon><Document /></el-icon>
+              <span>招募标题</span>
+            </div>
+          </template>
+          <template #default="scope">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                {{ scope.row.title }}
+              </span>
+              <el-button type="primary" link @click="showDescriptionDetail(scope.row, 'title')">
+                查看详情
+              </el-button>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="description" label="描述">
+          <template #header>
+            <div class="table-header">
+              <el-icon><Document /></el-icon>
+              <span>描述</span>
+            </div>
+          </template>
+          <template #default="scope">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                {{ scope.row.description }}
+              </span>
+              <el-button type="primary" link @click="showDescriptionDetail(scope.row, 'description')">
+                查看详情
+              </el-button>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="contact" label="联系方式" width="180">
+          <template #header>
+            <div class="table-header">
+              <el-icon><Phone /></el-icon>
+              <span>联系方式</span>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="createdAt" label="发布时间" width="180">
+          <template #header>
+            <div class="table-header">
+              <el-icon><Timer /></el-icon>
+              <span>发布时间</span>
+            </div>
+          </template>
+          <template #default="scope">
+            {{ formatDate(scope.row.createdAt) }}
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" width="200">
+          <template #header>
+            <div class="table-header">
+              <el-icon><Operation /></el-icon>
+              <span>操作</span>
+            </div>
+          </template>
+          <template #default="scope">
+            <el-button
+              type="primary"
+              size="small"
+              @click="handleEdit(scope.row)"
+            >
+              <el-icon><Edit /></el-icon>
+              编辑
+            </el-button>
+            <el-button
+              type="danger"
+              size="small"
+              @click="handleDelete(scope.row)"
+            >
+              <el-icon><Delete /></el-icon>
+              删除
+            </el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+
+      <!-- 分页 -->
+      <div class="pagination-container">
+        <el-pagination
+          v-model:current-page="currentPage"
+          v-model:page-size="pageSize"
+          :page-sizes="[10, 20, 50, 100]"
+          :total="total"
+          layout="total, sizes, prev, pager, next, jumper"
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
         />
-      </el-form-item>
-      <el-form-item>
-        <el-button type="primary" @click="handleSearch">搜索</el-button>
-        <el-button @click="handleReset">重置</el-button>
-        <el-button type="success" @click="handleAdd">发布招募</el-button>
-      </el-form-item>
-    </el-form>
-
-    <!-- 招募列表 -->
-    <el-table :data="recruitmentList" style="width: 100%" v-loading="loading">
-      <el-table-column prop="title" label="招募标题">
-        <template #default="scope">
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <span style="flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-              {{ scope.row.title }}
-            </span>
-            <el-button type="primary" link @click="showDescriptionDetail(scope.row, 'title')">
-              查看详情
-            </el-button>
-          </div>
-        </template>
-      </el-table-column>
-      <el-table-column prop="description" label="描述">
-        <template #default="scope">
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <span style="flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-              {{ scope.row.description }}
-            </span>
-            <el-button type="primary" link @click="showDescriptionDetail(scope.row, 'description')">
-              查看详情
-            </el-button>
-          </div>
-        </template>
-      </el-table-column>
-      <el-table-column prop="contact" label="联系方式" width="180" />
-      <el-table-column prop="createdAt" label="发布时间" width="180">
-        <template #default="scope">
-          {{ formatDate(scope.row.createdAt) }}
-        </template>
-      </el-table-column>
-      <el-table-column label="操作" width="200">
-        <template #default="scope">
-          <el-button
-            type="primary"
-            size="small"
-            @click="handleEdit(scope.row)"
-          >
-            编辑
-          </el-button>
-          <el-button
-            type="danger"
-            size="small"
-            @click="handleDelete(scope.row)"
-          >
-            删除
-          </el-button>
-        </template>
-      </el-table-column>
-    </el-table>
-
-    <!-- 分页 -->
-    <div class="pagination-container">
-      <el-pagination
-        v-model:current-page="currentPage"
-        v-model:page-size="pageSize"
-        :page-sizes="[10, 20, 50, 100]"
-        :total="total"
-        layout="total, sizes, prev, pager, next, jumper"
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
-      />
+      </div>
     </div>
 
     <!-- 新增/编辑招募对话框 -->
@@ -159,9 +218,23 @@
 <script>
 import axios from 'axios'
 import { ElMessage } from 'element-plus'
+import { Bell, Search, Refresh, Plus, Calendar, Document, Edit, Delete, Phone, Timer, Operation } from '@element-plus/icons-vue'
 
 export default {
   name: 'RecruitmentView',
+  components: {
+    Bell,
+    Search,
+    Refresh,
+    Plus,
+    Calendar,
+    Document,
+    Edit,
+    Delete,
+    Phone,
+    Timer,
+    Operation
+  },
   data() {
     return {
       recruitmentList: [],
@@ -346,17 +419,73 @@ export default {
 <style scoped>
 .recruitment-container {
   padding: 20px;
+  background-color: #f5f7fa;
+  min-height: 100vh;
 }
-.search-form {
+
+.page-title {
+  margin-bottom: 30px;
+  font-size: 24px;
+  color: #303133;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-left: 15px;
+  border-left: 4px solid #409EFF;
+}
+
+.page-title .el-icon {
+  font-size: 24px;
+  color: #409EFF;
+}
+
+.attendance-section {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+}
+
+.section-header {
+  margin-bottom: 20px;
+}
+
+.section-header h3 {
+  color: #303133;
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.query-form {
   margin-bottom: 20px;
   padding: 20px;
-  background-color: #fff;
-  border-radius: 4px;
-  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+  background: #f5f7fa;
+  border-radius: 8px;
+  border: 1px solid #ebeef5;
 }
+
 .pagination-container {
   margin-top: 20px;
   display: flex;
   justify-content: flex-end;
+}
+
+.table-header {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.table-header .el-icon {
+  font-size: 16px;
+  color: #606266;
+}
+
+:deep(.el-button) {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 </style> 

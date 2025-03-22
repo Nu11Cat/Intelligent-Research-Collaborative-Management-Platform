@@ -1,5 +1,10 @@
 <template>
   <div class="group-container">
+    <div class="page-title">
+      <el-icon><Folder /></el-icon>
+      <span>小组管理</span>
+    </div>
+
     <!-- 本组考勤情况 -->
     <el-card class="attendance-container">
       <template #header>
@@ -18,31 +23,102 @@
             start-placeholder="开始日期"
             end-placeholder="结束日期"
             value-format="YYYY-MM-DD"
-          />
+          >
+            <template #prefix>
+              <el-icon><Calendar /></el-icon>
+            </template>
+          </el-date-picker>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="handleQuery">查询</el-button>
-          <el-button @click="resetQuery">重置</el-button>
+          <el-button type="primary" @click="handleQuery">
+            <el-icon><Search /></el-icon>
+            查询
+          </el-button>
+          <el-button @click="resetQuery">
+            <el-icon><Refresh /></el-icon>
+            重置
+          </el-button>
         </el-form-item>
       </el-form>
 
       <!-- 考勤记录表格 -->
-      <el-table :data="attendanceList" style="width: 100%" v-loading="loading">
-        <el-table-column prop="userName" label="用户名" />
-        <el-table-column prop="groupName" label="小组" />
-        <el-table-column prop="checkIn" label="日期" width="180">
+      <el-table :data="attendanceList" style="width: 100%; min-width: 1000px;" v-loading="loading" stripe border>
+        <el-table-column prop="userName" label="用户名" min-width="120">
+          <template #header>
+            <div class="table-header">
+              <el-icon><User /></el-icon>
+              <span>用户名</span>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="groupName" label="小组" min-width="120">
+          <template #header>
+            <div class="table-header">
+              <el-icon><Folder /></el-icon>
+              <span>小组</span>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="checkIn" label="日期" min-width="200">
+          <template #header>
+            <div class="table-header">
+              <el-icon><Calendar /></el-icon>
+              <span>日期</span>
+            </div>
+          </template>
           <template #default="scope">
             {{ new Date(scope.row.checkIn).toLocaleDateString() }}
           </template>
         </el-table-column>
-        <el-table-column prop="checkIn" label="签到时间" width="180">
+        <el-table-column prop="checkIn" label="签到时间" min-width="200">
+          <template #header>
+            <div class="table-header">
+              <el-icon><Timer /></el-icon>
+              <span>签到时间</span>
+            </div>
+          </template>
           <template #default="scope">
-            {{ scope.row.checkIn ? new Date(scope.row.checkIn).toLocaleString() : '-' }}
+            <el-tag 
+              size="small" 
+              type="success" 
+              effect="light"
+            >
+              {{ scope.row.checkIn ? new Date(scope.row.checkIn).toLocaleString() : '-' }}
+            </el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="checkOut" label="签退时间" width="180">
+        <el-table-column prop="checkOut" label="签退时间" min-width="200">
+          <template #header>
+            <div class="table-header">
+              <el-icon><Timer /></el-icon>
+              <span>签退时间</span>
+            </div>
+          </template>
           <template #default="scope">
-            {{ scope.row.checkOut ? new Date(scope.row.checkOut).toLocaleString() : '-' }}
+            <el-tag 
+              size="small" 
+              type="success" 
+              effect="light"
+            >
+              {{ scope.row.checkOut ? new Date(scope.row.checkOut).toLocaleString() : '-' }}
+            </el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column prop="isLeave" label="请假状态" min-width="120" align="center">
+          <template #header>
+            <div class="table-header">
+              <el-icon><InfoFilled /></el-icon>
+              <span>请假状态</span>
+            </div>
+          </template>
+          <template #default="scope">
+            <el-tag 
+              size="small" 
+              :type="scope.row.isLeave ? 'danger' : 'success'"
+              effect="light"
+            >
+              {{ scope.row.isLeave ? '已请假' : '未请假' }}
+            </el-tag>
           </template>
         </el-table-column>
       </el-table>
@@ -72,41 +148,93 @@
       <!-- 用户查询表单 -->
       <el-form :inline="true" :model="userQueryForm" class="demo-form-inline">
         <el-form-item label="用户名">
-          <el-input v-model="userQueryForm.username" placeholder="请输入用户名" clearable />
+          <el-input v-model="userQueryForm.username" placeholder="请输入用户名" clearable>
+            <template #prefix>
+              <el-icon><User /></el-icon>
+            </template>
+          </el-input>
         </el-form-item>
         <el-form-item label="小组">
-          <el-input v-model="userQueryForm.groupName" placeholder="请输入小组名称" clearable />
+          <el-input v-model="userQueryForm.groupName" placeholder="请输入小组名称" clearable>
+            <template #prefix>
+              <el-icon><Folder /></el-icon>
+            </template>
+          </el-input>
         </el-form-item>
         <el-form-item>
           <el-button 
             :type="userQueryForm.role === 'USER' ? 'primary' : ''" 
             @click="handleRoleFilter('USER')"
-          >只显示组员</el-button>
+          >
+            <el-icon><User /></el-icon>
+            只显示组员
+          </el-button>
           <el-button 
             :type="userQueryForm.role === 'LEADER' ? 'primary' : ''" 
             @click="handleRoleFilter('LEADER')"
-          >只显示组长</el-button>
+          >
+            <el-icon><Star /></el-icon>
+            只显示组长
+          </el-button>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="handleUserQuery">查询</el-button>
-          <el-button @click="resetUserQuery">重置</el-button>
+          <el-button type="primary" @click="handleUserQuery">
+            <el-icon><Search /></el-icon>
+            查询
+          </el-button>
+          <el-button @click="resetUserQuery">
+            <el-icon><Refresh /></el-icon>
+            重置
+          </el-button>
         </el-form-item>
       </el-form>
 
-      <el-table :data="userList" style="width: 100%" v-loading="userLoading">
-        <el-table-column prop="username" label="用户名" />
+      <el-table :data="userList" style="width: 100%" v-loading="userLoading" stripe border>
+        <el-table-column prop="username" label="用户名">
+          <template #header>
+            <div class="table-header">
+              <el-icon><User /></el-icon>
+              <span>用户名</span>
+            </div>
+          </template>
+        </el-table-column>
         <el-table-column prop="role" label="角色">
+          <template #header>
+            <div class="table-header">
+              <el-icon><User /></el-icon>
+              <span>角色</span>
+            </div>
+          </template>
           <template #default="scope">
             {{ scope.row.role === 'ADMIN' ? '管理员' : scope.row.role === 'LEADER' ? '组长' : '组员' }}
           </template>
         </el-table-column>
-        <el-table-column prop="groupName" label="所属小组" />
+        <el-table-column prop="groupName" label="所属小组">
+          <template #header>
+            <div class="table-header">
+              <el-icon><Folder /></el-icon>
+              <span>所属小组</span>
+            </div>
+          </template>
+        </el-table-column>
         <el-table-column prop="createdAt" label="创建时间" width="180">
+          <template #header>
+            <div class="table-header">
+              <el-icon><Timer /></el-icon>
+              <span>创建时间</span>
+            </div>
+          </template>
           <template #default="scope">
             {{ new Date(scope.row.createdAt).toLocaleString() }}
           </template>
         </el-table-column>
         <el-table-column prop="updatedAt" label="更新时间" width="180">
+          <template #header>
+            <div class="table-header">
+              <el-icon><Timer /></el-icon>
+              <span>更新时间</span>
+            </div>
+          </template>
           <template #default="scope">
             {{ new Date(scope.row.updatedAt).toLocaleString() }}
           </template>
@@ -131,9 +259,19 @@
 <script>
 import axios from 'axios'
 import { ElMessage } from 'element-plus'
+import { Folder, User, Calendar, Search, Refresh, Star, Timer } from '@element-plus/icons-vue'
 
 export default {
   name: 'GroupView',
+  components: {
+    Folder,
+    User,
+    Calendar,
+    Search,
+    Refresh,
+    Star,
+    Timer
+  },
   data() {
     return {
       queryForm: {
@@ -259,6 +397,20 @@ export default {
 <style scoped>
 .group-container {
   padding: 20px;
+  background-color: #f5f7fa;
+  min-height: 100vh;
+}
+
+.page-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+  padding-left: 12px;
+  border-left: 4px solid #409EFF;
+  font-size: 18px;
+  color: #303133;
+  font-weight: 600;
 }
 
 .attendance-container {
@@ -294,5 +446,22 @@ export default {
 
 :deep(.el-card__body) {
   padding: 20px;
+}
+
+.table-header {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.table-header .el-icon {
+  font-size: 16px;
+  color: #606266;
+}
+
+:deep(.el-button) {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 </style> 

@@ -1,59 +1,84 @@
 <template>
   <div class="attendance-container">
-    <h2>考勤管理</h2>
-    <div class="attendance-buttons">
-      <el-button 
-        type="primary" 
-        size="large" 
-        :disabled="hasSignedIn"
-        @click="handleSignIn"
-      >
-        签到
-      </el-button>
-      <el-button 
-        type="warning" 
-        size="large" 
-        :disabled="!hasSignedIn || hasSignedOut"
-        @click="handleSignOut"
-      >
-        签退
-      </el-button>
-    </div>
-    <div class="attendance-status">
-      <el-alert
-        v-if="hasSignedIn"
-        title="今日已签到"
-        type="success"
-        :closable="false"
-        show-icon
-      />
-      <el-alert
-        v-if="hasSignedOut"
-        title="今日已签退"
-        type="info"
-        :closable="false"
-        show-icon
-      />
-    </div>
-    <div class="attendance-time" v-if="todayRecord">
-      <div class="time-item">
-        <span class="label">签到时间：</span>
-        <span class="value">{{ todayRecord.checkIn ? new Date(todayRecord.checkIn).toLocaleString() : '未签到' }}</span>
-      </div>
-      <div class="time-item">
-        <span class="label">签退时间：</span>
-        <span class="value">{{ todayRecord.checkOut ? new Date(todayRecord.checkOut).toLocaleString() : '未签退' }}</span>
-      </div>
-      <div class="time-item">
-        <span class="label">所属小组：</span>
-        <span class="value">{{ todayRecord.groupName || '未分配' }}</span>
-      </div>
-    </div>
+    <h2 class="page-title">
+      <el-icon><Timer /></el-icon>
+      考勤管理
+    </h2>
 
-    <!-- 考勤记录表格 -->
-    <div class="attendance-table">
-      <h3>考勤记录</h3>
-      <!-- 添加日期范围选择器 -->
+    <!-- 签到签退卡片 -->
+    <el-card shadow="hover" class="sign-card">
+      <template #header>
+        <div class="card-header">
+          <span class="card-title">今日考勤</span>
+        </div>
+      </template>
+      
+      <div class="sign-content">
+        <div class="sign-buttons">
+          <el-button 
+            type="primary" 
+            size="large" 
+            @click="handleSignIn"
+          >
+            <el-icon><CircleCheckFilled /></el-icon>
+            签到
+          </el-button>
+          <el-button 
+            type="warning" 
+            size="large" 
+            @click="handleSignOut"
+          >
+            <el-icon><CircleCloseFilled /></el-icon>
+            签退
+          </el-button>
+        </div>
+
+        <div class="sign-status">
+          <el-alert
+            v-if="hasSignedIn"
+            title="今日已签到"
+            type="success"
+            :closable="false"
+            show-icon
+            class="status-alert"
+          />
+          <el-alert
+            v-if="hasSignedOut"
+            title="今日已签退"
+            type="info"
+            :closable="false"
+            show-icon
+            class="status-alert"
+          />
+        </div>
+
+        <div class="sign-times" v-if="todayRecord">
+          <div class="time-item">
+            <el-icon><Timer /></el-icon>
+            <span class="label">签到时间：</span>
+            <span class="value">{{ todayRecord.checkIn ? new Date(todayRecord.checkIn).toLocaleString() : '未签到' }}</span>
+          </div>
+          <div class="time-item">
+            <el-icon><Timer /></el-icon>
+            <span class="label">签退时间：</span>
+            <span class="value">{{ todayRecord.checkOut ? new Date(todayRecord.checkOut).toLocaleString() : '未签退' }}</span>
+          </div>
+        </div>
+      </div>
+    </el-card>
+
+    <!-- 考勤记录卡片 -->
+    <el-card shadow="hover" class="record-card">
+      <template #header>
+        <div class="card-header">
+          <span class="card-title">考勤记录</span>
+          <el-button type="primary" @click="showLeaveDialog">
+            <el-icon><Calendar /></el-icon>
+            申请请假
+          </el-button>
+        </div>
+      </template>
+
       <div class="query-form">
         <el-form :inline="true" :model="queryForm" class="demo-form-inline">
           <el-form-item label="日期范围">
@@ -65,34 +90,68 @@
               end-placeholder="结束日期"
               value-format="YYYY-MM-DD"
               @change="handleDateRangeChange"
-            />
+            >
+              <template #prefix>
+                <el-icon><Calendar /></el-icon>
+              </template>
+            </el-date-picker>
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" @click="handleQuery">查询</el-button>
-            <el-button @click="resetQuery">重置</el-button>
+            <el-button type="primary" @click="handleQuery">
+              <el-icon><Search /></el-icon>
+              查询
+            </el-button>
+            <el-button @click="resetQuery">
+              <el-icon><Refresh /></el-icon>
+              重置
+            </el-button>
           </el-form-item>
         </el-form>
       </div>
-      <el-table :data="records" style="width: 100%" border>
-        <el-table-column prop="checkIn" label="日期" width="180">
+
+      <el-table :data="records" style="width: 100%" border v-loading="loading" :stripe="true">
+        <el-table-column prop="checkIn" label="日期" min-width="150" align="center">
           <template #default="scope">
-            {{ scope.row.checkIn ? new Date(scope.row.checkIn).toLocaleDateString() : '未签到' }}
+            <el-tag size="small" effect="plain" type="info">
+              {{ scope.row.checkIn ? new Date(scope.row.checkIn).toISOString().split('T')[0] : '-' }}
+            </el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="checkIn" label="签到时间" width="180">
+        <el-table-column prop="checkIn" label="签到时间" min-width="200" align="center">
           <template #default="scope">
-            {{ scope.row.checkIn ? new Date(scope.row.checkIn).toLocaleString() : '未签到' }}
+            <el-tag 
+              size="small" 
+              :type="scope.row.checkIn ? 'success' : 'danger'"
+              effect="light"
+            >
+              {{ scope.row.checkIn ? new Date(scope.row.checkIn).toLocaleString() : '未签到' }}
+            </el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="checkOut" label="签退时间" width="180">
+        <el-table-column prop="checkOut" label="签退时间" min-width="200" align="center">
           <template #default="scope">
-            {{ scope.row.checkOut ? new Date(scope.row.checkOut).toLocaleString() : '未签退' }}
+            <el-tag 
+              size="small" 
+              :type="scope.row.checkOut ? 'success' : 'warning'"
+              effect="light"
+            >
+              {{ scope.row.checkOut ? new Date(scope.row.checkOut).toLocaleString() : '未签退' }}
+            </el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="groupName" label="所属小组" />
+        <el-table-column prop="isLeave" label="请假状态" min-width="120" align="center">
+          <template #default="scope">
+            <el-tag 
+              size="small" 
+              :type="scope.row.isLeave ? 'danger' : 'success'"
+              effect="light"
+            >
+              {{ scope.row.isLeave ? '已请假' : '未请假' }}
+            </el-tag>
+          </template>
+        </el-table-column>
       </el-table>
 
-      <!-- 分页 -->
       <div class="pagination">
         <el-pagination
           v-model:current-page="page"
@@ -104,85 +163,125 @@
           @current-change="handleCurrentChange"
         />
       </div>
-    </div>
+    </el-card>
 
-    <!-- 请假申请按钮 -->
-    <div class="leave-apply-container">
-      <el-button type="primary" @click="showLeaveDialog">申请请假</el-button>
-    </div>
-
-    <!-- 个人请假记录表格 -->
-    <h3>个人请假记录</h3>
-    <el-table :data="leaveRecords" style="width: 100%">
-      <el-table-column prop="leaveDate" label="请假日期" width="180" />
-      <el-table-column prop="reason" label="请假原因" />
-      <el-table-column prop="status" label="状态" width="100">
-        <template #default="scope">
-          <el-tag :type="getLeaveStatusType(scope.row.status)">
-            {{ getLeaveStatusText(scope.row.status) }}
-          </el-tag>
-        </template>
-      </el-table-column>
-      <el-table-column prop="createTime" label="申请时间" width="180" />
-      <el-table-column prop="approveTime" label="审核时间" width="180" />
-      <el-table-column prop="approverComment" label="审核意见" />
-    </el-table>
-
-    <!-- 请假记录分页 -->
-    <div class="pagination-container">
-      <el-pagination
-        v-model:current-page="leaveCurrentPage"
-        v-model:page-size="leavePageSize"
-        :total="leaveTotal"
-        :page-sizes="[10, 20, 50, 100]"
-        layout="total, sizes, prev, pager, next"
-        @size-change="handleLeaveSizeChange"
-        @current-change="handleLeaveCurrentChange"
-      />
-    </div>
-
-    <!-- 请假申请对话框 -->
-    <el-dialog
-      v-model="leaveDialogVisible"
-      title="申请请假"
-      width="500px"
-    >
-      <el-form :model="leaveForm" label-width="100px">
-        <el-form-item label="请假日期">
-          <el-date-picker
-            v-model="leaveForm.leaveDate"
-            type="date"
-            placeholder="选择请假日期"
-            format="YYYY-MM-DD"
-            value-format="YYYY-MM-DD"
-          />
-        </el-form-item>
-        <el-form-item label="请假原因">
-          <el-input
-            v-model="leaveForm.reason"
-            type="textarea"
-            :rows="3"
-            placeholder="请输入请假原因"
-          />
-        </el-form-item>
-      </el-form>
-      <template #footer>
-        <span class="dialog-footer">
-          <el-button @click="leaveDialogVisible = false">取消</el-button>
-          <el-button type="primary" @click="submitLeave">确定</el-button>
-        </span>
+    <!-- 请假记录卡片 -->
+    <el-card shadow="hover" class="leave-card">
+      <template #header>
+        <div class="card-header">
+          <span class="card-title">请假记录</span>
+        </div>
       </template>
-    </el-dialog>
+
+      <el-table :data="leaveRecords" style="width: 100%" border v-loading="loading">
+        <el-table-column prop="leaveDate" label="请假日期" width="120" align="center">
+          <template #default="scope">
+            {{ scope.row.leaveDate }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="reason" label="请假原因" />
+        <el-table-column prop="status" label="状态" width="100" align="center">
+          <template #default="scope">
+            <el-tag :type="getLeaveStatusType(scope.row.status)" size="small">
+              {{ getLeaveStatusText(scope.row.status) }}
+            </el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column prop="createTime" label="申请时间" width="160" align="center">
+          <template #default="scope">
+            <el-tag size="small" effect="plain" type="info">
+              {{ scope.row.createTime ? new Date(scope.row.createTime).toLocaleString() : '-' }}
+            </el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column prop="approveTime" label="审核时间" width="160" align="center">
+          <template #default="scope">
+            <el-tag size="small" effect="plain" type="info">
+              {{ scope.row.approveTime ? new Date(scope.row.approveTime).toLocaleString() : '-' }}
+            </el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column prop="approver" label="审核人" width="120" align="center">
+          <template #default="scope">
+            <el-tag size="small" effect="plain" type="info">
+              {{ scope.row.approverName || '-' }}
+            </el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column prop="approverComment" label="审核意见" />
+      </el-table>
+
+      <div class="pagination">
+        <el-pagination
+          v-model:current-page="leaveCurrentPage"
+          v-model:page-size="leavePageSize"
+          :total="leaveTotal"
+          :page-sizes="[10, 20, 50, 100]"
+          layout="total, sizes, prev, pager, next"
+          @size-change="handleLeaveSizeChange"
+          @current-change="handleLeaveCurrentChange"
+        />
+      </div>
+    </el-card>
   </div>
+
+  <!-- 请假申请对话框 -->
+  <el-dialog
+    v-model="leaveDialogVisible"
+    title="请假申请"
+    width="500px"
+    :close-on-click-modal="false"
+  >
+    <el-form :model="leaveForm" label-width="100px">
+      <el-form-item label="请假日期">
+        <el-date-picker
+          v-model="leaveForm.leaveDate"
+          type="date"
+          placeholder="选择请假日期"
+          value-format="YYYY-MM-DD"
+        />
+      </el-form-item>
+      <el-form-item label="请假原因">
+        <el-input
+          v-model="leaveForm.reason"
+          type="textarea"
+          :rows="4"
+          placeholder="请输入请假原因"
+        />
+      </el-form-item>
+    </el-form>
+    <template #footer>
+      <span class="dialog-footer">
+        <el-button @click="leaveDialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="submitLeave">提交</el-button>
+      </span>
+    </template>
+  </el-dialog>
 </template>
 
 <script>
 import { ElMessage } from 'element-plus'
 import request from '../utils/request'
 import axios from 'axios'
+import {
+  Timer,
+  CircleCheckFilled,
+  CircleCloseFilled,
+  Calendar,
+  Search,
+  Refresh
+} from '@element-plus/icons-vue'
 
 export default {
   name: 'AttendanceView',
+  components: {
+    Timer,
+    CircleCheckFilled,
+    CircleCloseFilled,
+    Calendar,
+    Search,
+    Refresh
+  },
   data() {
     return {
       hasSignedIn: false,
@@ -496,42 +595,96 @@ export default {
 <style scoped>
 .attendance-container {
   padding: 20px;
-  max-width: 800px;
-  margin: 0 auto;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  background-color: #f5f7fa;
+  min-height: 100vh;
 }
 
-h2 {
-  color: #333;
+.page-title {
   margin-bottom: 30px;
-  text-align: center;
+  font-size: 24px;
+  color: #303133;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-left: 15px;
+  border-left: 4px solid #409EFF;
 }
 
-.attendance-buttons {
+.page-title .el-icon {
+  font-size: 24px;
+  color: #409EFF;
+}
+
+.sign-card,
+.record-card,
+.leave-card {
+  margin-bottom: 20px;
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.sign-card:hover,
+.record-card:hover,
+.leave-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px 20px;
+  background-color: #fff;
+  border-bottom: 1px solid #ebeef5;
+}
+
+.card-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #303133;
+}
+
+.sign-content {
+  padding: 20px;
+}
+
+.sign-buttons {
   display: flex;
   justify-content: center;
   gap: 20px;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
 }
 
-.attendance-status {
+.sign-buttons .el-button {
+  padding: 12px 30px;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sign-status {
   max-width: 400px;
   margin: 0 auto 20px;
 }
 
-.attendance-time {
+.status-alert {
+  margin-bottom: 10px;
+}
+
+.sign-times {
   max-width: 400px;
   margin: 0 auto;
   padding: 20px;
   background: #f5f7fa;
-  border-radius: 4px;
+  border-radius: 8px;
 }
 
 .time-item {
   display: flex;
-  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
   margin-bottom: 10px;
   font-size: 16px;
 }
@@ -540,43 +693,25 @@ h2 {
   margin-bottom: 0;
 }
 
+.time-item .el-icon {
+  color: #409EFF;
+}
+
 .label {
   color: #606266;
 }
 
 .value {
-  color: #409eff;
+  color: #409EFF;
   font-weight: 500;
-}
-
-.el-button {
-  padding: 12px 30px;
-  font-size: 16px;
-}
-
-.el-button:disabled {
-  cursor: not-allowed;
-}
-
-.attendance-table {
-  margin-top: 20px;
-}
-
-.attendance-table h3 {
-  color: #333;
-  margin-bottom: 10px;
-}
-
-.pagination {
-  margin-top: 20px;
-  text-align: right;
 }
 
 .query-form {
   margin-bottom: 20px;
-  padding: 15px;
+  padding: 20px;
   background: #f5f7fa;
-  border-radius: 4px;
+  border-radius: 8px;
+  border: 1px solid #ebeef5;
 }
 
 .demo-form-inline {
@@ -589,18 +724,74 @@ h2 {
   margin-bottom: 0;
 }
 
-.leave-apply-container {
-  margin: 20px 0;
-  display: flex;
+:deep(.el-card__header) {
+  padding: 15px 20px;
+  border-bottom: 1px solid #ebeef5;
+  background-color: #fff;
+}
+
+:deep(.el-card__body) {
+  padding: 20px;
+  background-color: #fff;
+}
+
+:deep(.el-table) {
+  border-radius: 8px;
+  overflow: hidden;
+  margin-top: 10px;
+}
+
+:deep(.el-table th) {
+  background-color: #f5f7fa;
+  color: #606266;
+  font-weight: 600;
+  padding: 12px 0;
+}
+
+:deep(.el-table td) {
+  padding: 12px 0;
+  color: #606266;
+}
+
+:deep(.el-table--striped .el-table__body tr.el-table__row--striped td) {
+  background: #fafafa;
+}
+
+:deep(.el-table--enable-row-hover .el-table__body tr:hover > td) {
+  background-color: #f5f7fa;
+}
+
+:deep(.el-table .cell) {
+  padding: 0 12px;
+}
+
+.pagination {
+  margin-top: 20px;
+  text-align: right;
+  padding: 10px 0;
+}
+
+:deep(.el-pagination) {
   justify-content: flex-end;
 }
 
-h3 {
-  margin: 20px 0;
+:deep(.el-button) {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 
-.pagination-container {
-  margin-top: 20px;
-  text-align: right;
+:deep(.el-tag) {
+  border-radius: 4px;
+  padding: 0 12px;
+  height: 24px;
+  line-height: 22px;
+  font-size: 12px;
+}
+
+:deep(.el-tag--info) {
+  background-color: #f4f4f5;
+  border-color: #e9e9eb;
+  color: #909399;
 }
 </style> 

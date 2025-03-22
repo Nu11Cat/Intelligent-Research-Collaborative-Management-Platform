@@ -1,10 +1,10 @@
-<template>
+还没有账号？<template>
   <div class="layout-container">
     <!-- 顶部导航栏 -->
     <div class="navbar">
       <div class="navbar-left">
         <div class="logo">
-          <span>研智协同管理平台</span>
+          <span>智研协同管理平台</span>
         </div>
       </div>
       <div class="navbar-right">
@@ -12,7 +12,7 @@
         <button @click="handleAbout" class="about-btn">关于系统</button>
         <div class="user-info">
           <el-tag size="small" :type="getRoleType(userRole)">{{ getRoleText(userRole) }}</el-tag>
-          <span>{{ username }}</span>
+          <span class="username">{{ username }}</span>
           <button @click="showChangePasswordDialog" class="change-pwd-btn">修改密码</button>
           <button @click="handleLogout" class="logout-btn">退出登录</button>
         </div>
@@ -344,14 +344,18 @@ export default {
 .user-info {
   display: flex;
   align-items: center;
-  gap: 15px;
-  color: white;
+  gap: 10px;
 }
 
 .el-tag {
   background: rgba(255, 255, 255, 0.2);
   border: none;
   color: white;
+}
+
+.username {
+  color: #333;
+  font-weight: 500;
 }
 
 .main-content {

@@ -16,6 +16,8 @@ import ResourceSharing from '../views/ResourceSharing.vue'
 import HistoryAnnouncement from '../views/HistoryAnnouncement.vue'
 import Feedback from '../views/Feedback.vue'
 import UpdateLog from '../views/UpdateLog.vue'
+import UserAgreement from '../views/UserAgreement.vue'
+import PrivacyPolicy from '../views/PrivacyPolicy.vue'
 
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
@@ -29,6 +31,16 @@ const router = createRouter({
       path: '/register',
       name: 'register',
       component: Register
+    },
+    {
+      path: '/user-agreement',
+      name: 'UserAgreement',
+      component: UserAgreement
+    },
+    {
+      path: '/privacy-policy',
+      name: 'PrivacyPolicy',
+      component: PrivacyPolicy
     },
     {
       path: '/',
@@ -166,7 +178,8 @@ router.beforeEach((to, from, next) => {
   const userRole = localStorage.getItem('userRole')
   
   // 不需要登录的路由
-  if (to.path === '/login' || to.path === '/register') {
+  if (to.path === '/login' || to.path === '/register' || 
+      to.path === '/user-agreement' || to.path === '/privacy-policy') {
     next()
     return
   }

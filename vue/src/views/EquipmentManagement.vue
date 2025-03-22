@@ -1,134 +1,208 @@
 <template>
   <div class="equipment-container">
-    <div class="header">
-      <h2>器材借用</h2>
-      <div class="user-info">
-        <span>{{ userRole }}</span>
-      </div>
+    <div class="page-title">
+      <el-icon><Box /></el-icon>
+      <span>器材借用</span>
     </div>
-    <!-- 搜索表单 -->
-    <el-form :inline="true" :model="queryForm" class="search-form">
-      <el-form-item label="器材名称">
-        <el-input v-model="queryForm.name" placeholder="请输入器材名称" />
-      </el-form-item>
-      <el-form-item label="器材描述">
-        <el-input v-model="queryForm.description" placeholder="请输入器材描述" />
-      </el-form-item>
-      <el-form-item label="日期范围">
-        <el-date-picker
-          v-model="queryForm.dateRange"
-          type="daterange"
-          range-separator="至"
-          start-placeholder="开始日期"
-          end-placeholder="结束日期"
-        />
-      </el-form-item>
-      <el-form-item>
-        <el-button type="primary" @click="handleSearch">搜索</el-button>
-        <el-button @click="handleReset">重置</el-button>
-        <el-button
-          v-if="userRole === 'LEADER'"
-          type="success"
-          @click="handleAdd"
-        >
-          新增器材
-        </el-button>
-      </el-form-item>
-    </el-form>
-
-    <!-- 器材列表 -->
-    <el-table :data="equipmentList" style="width: 100%" v-loading="loading">
-      <el-table-column prop="imageUrl" label="图片" width="120">
-        <template #default="scope">
-          <el-image
-            v-if="scope.row.imageUrl"
-            :src="scope.row.imageUrl"
-            :preview-src-list="[scope.row.imageUrl]"
-            fit="cover"
-            style="width: 50px; height: 50px"
-          />
-          <span v-else>无图片</span>
-        </template>
-      </el-table-column>
-      <el-table-column prop="name" label="器材名称" width="180" />
-      <el-table-column prop="description" label="描述" />
-      <el-table-column prop="level" label="等级" width="100">
-        <template #default="scope">
-          <el-tag :type="getLevelType(scope.row.level)">
-            {{ getLevelText(scope.row.level) }}
-          </el-tag>
-        </template>
-      </el-table-column>
-      <el-table-column prop="status" label="状态" width="100">
-        <template #default="scope">
-          <el-tag :type="scope.row.status === 0 ? 'success' : 'danger'">
-            {{ scope.row.status === 0 ? '可借用' : '已借出' }}
-          </el-tag>
-        </template>
-      </el-table-column>
-      <el-table-column prop="createdAt" label="创建时间" width="180">
-        <template #default="scope">
-          {{ formatDate(scope.row.createdAt) }}
-        </template>
-      </el-table-column>
-      <el-table-column label="操作" width="280">
-        <template #default="scope">
-          <!-- 组长操作按钮 -->
-          <template v-if="userRole === 'LEADER'">
-            <el-button
-              type="primary"
-              size="small"
-              @click="handleEdit(scope.row)"
-            >
-              编辑
-            </el-button>
-            <el-button
-              type="danger"
-              size="small"
-              @click="handleDelete(scope.row)"
-            >
-              删除
-            </el-button>
-          </template>
-          <!-- 所有用户都可以看到的按钮 -->
-          <el-button
-            v-if="scope.row.status === 0"
-            type="primary"
-            size="small"
-            @click="handleBorrow(scope.row)"
+    <div class="attendance-section">
+      <div class="section-header">
+        <h3>器材列表</h3>
+      </div>
+      <!-- 搜索表单 -->
+      <el-form :inline="true" :model="queryForm" class="query-form">
+        <el-form-item label="器材名称">
+          <el-input v-model="queryForm.name" placeholder="请输入器材名称" clearable>
+            <template #prefix>
+              <el-icon><Box /></el-icon>
+            </template>
+          </el-input>
+        </el-form-item>
+        <el-form-item label="器材描述">
+          <el-input v-model="queryForm.description" placeholder="请输入器材描述" clearable>
+            <template #prefix>
+              <el-icon><Document /></el-icon>
+            </template>
+          </el-input>
+        </el-form-item>
+        <el-form-item label="日期范围">
+          <el-date-picker
+            v-model="queryForm.dateRange"
+            type="daterange"
+            range-separator="至"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
           >
-            借用
+            <template #prefix>
+              <el-icon><Calendar /></el-icon>
+            </template>
+          </el-date-picker>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="handleSearch">
+            <el-icon><Search /></el-icon>
+            搜索
+          </el-button>
+          <el-button @click="handleReset">
+            <el-icon><Refresh /></el-icon>
+            重置
           </el-button>
           <el-button
-            v-else
+            v-if="userRole === 'LEADER'"
             type="success"
-            size="small"
-            @click="handleReturn(scope.row)"
+            @click="handleAdd"
           >
-            归还
+            <el-icon><Plus /></el-icon>
+            新增器材
           </el-button>
-          <el-button
-            type="info"
-            size="small"
-            @click="handleViewRecords(scope.row)"
-          >
-            借用记录
-          </el-button>
-        </template>
-      </el-table-column>
-    </el-table>
+        </el-form-item>
+      </el-form>
 
-    <!-- 分页 -->
-    <div class="pagination-container">
-      <el-pagination
-        v-model:current-page="currentPage"
-        v-model:page-size="pageSize"
-        :page-sizes="[10, 20, 50, 100]"
-        :total="total"
-        layout="total, sizes, prev, pager, next, jumper"
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
-      />
+      <!-- 器材列表 -->
+      <el-table :data="equipmentList" style="width: 100%" v-loading="loading" stripe border>
+        <el-table-column prop="imageUrl" label="图片" width="120">
+          <template #header>
+            <div class="table-header">
+              <el-icon><Picture /></el-icon>
+              <span>图片</span>
+            </div>
+          </template>
+          <template #default="scope">
+            <el-image
+              v-if="scope.row.imageUrl"
+              :src="scope.row.imageUrl"
+              :preview-src-list="[scope.row.imageUrl]"
+              fit="cover"
+              style="width: 50px; height: 50px"
+            />
+            <span v-else>无图片</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="name" label="器材名称" width="180">
+          <template #header>
+            <div class="table-header">
+              <el-icon><Box /></el-icon>
+              <span>器材名称</span>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="description" label="描述">
+          <template #header>
+            <div class="table-header">
+              <el-icon><Document /></el-icon>
+              <span>描述</span>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="level" label="破旧程度" width="120">
+          <template #header>
+            <div class="table-header">
+              <el-icon><Star /></el-icon>
+              <span>破旧程度</span>
+            </div>
+          </template>
+          <template #default="scope">
+            <el-tag :type="getLevelType(scope.row.level)">
+              {{ getLevelText(scope.row.level) }}
+            </el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column prop="status" label="状态" width="100">
+          <template #header>
+            <div class="table-header">
+              <el-icon><CircleCheck /></el-icon>
+              <span>状态</span>
+            </div>
+          </template>
+          <template #default="scope">
+            <el-tag :type="scope.row.status === 0 ? 'success' : 'danger'">
+              {{ scope.row.status === 0 ? '可借用' : '已借出' }}
+            </el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column prop="createdAt" label="创建时间" width="180">
+          <template #header>
+            <div class="table-header">
+              <el-icon><Timer /></el-icon>
+              <span>创建时间</span>
+            </div>
+          </template>
+          <template #default="scope">
+            <el-tag type="success" effect="plain">
+              {{ formatDate(scope.row.createdAt) }}
+            </el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" width="400">
+          <template #header>
+            <div class="table-header">
+              <el-icon><Operation /></el-icon>
+              <span>操作</span>
+            </div>
+          </template>
+          <template #default="scope">
+            <div class="button-group">
+              <!-- 组长操作按钮 -->
+              <template v-if="userRole === 'LEADER'">
+                <el-button
+                  type="primary"
+                  size="small"
+                  @click="handleEdit(scope.row)"
+                >
+                  <el-icon><Edit /></el-icon>
+                  编辑
+                </el-button>
+                <el-button
+                  type="danger"
+                  size="small"
+                  @click="handleDelete(scope.row)"
+                >
+                  <el-icon><Delete /></el-icon>
+                  删除
+                </el-button>
+              </template>
+              <!-- 所有用户都可以看到的按钮 -->
+              <el-button
+                v-if="scope.row.status === 0"
+                type="primary"
+                size="small"
+                @click="handleBorrow(scope.row)"
+              >
+                <el-icon><Box /></el-icon>
+                借用
+              </el-button>
+              <el-button
+                v-else
+                type="success"
+                size="small"
+                @click="handleReturn(scope.row)"
+              >
+                <el-icon><Box /></el-icon>
+                归还
+              </el-button>
+              <el-button
+                type="info"
+                size="small"
+                @click="handleViewRecords(scope.row)"
+              >
+                借用记录
+              </el-button>
+            </div>
+          </template>
+        </el-table-column>
+      </el-table>
+
+      <!-- 分页 -->
+      <div class="pagination">
+        <el-pagination
+          v-model:current-page="currentPage"
+          v-model:page-size="pageSize"
+          :total="total"
+          :page-sizes="[10, 20, 50, 100]"
+          layout="total, sizes, prev, pager, next, jumper"
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+        />
+      </div>
     </div>
 
     <!-- 新增/编辑器材对话框 -->
@@ -231,12 +305,24 @@
 <script>
 import axios from 'axios'
 import { ElMessage } from 'element-plus'
-import { Plus } from '@element-plus/icons-vue'
+import { Plus, Box, Search, Refresh, Calendar, Document, Edit, Delete, Picture, Star, CircleCheck, Timer, Operation } from '@element-plus/icons-vue'
 
 export default {
   name: 'EquipmentManagement',
   components: {
-    Plus
+    Plus,
+    Box,
+    Search,
+    Refresh,
+    Calendar,
+    Document,
+    Edit,
+    Delete,
+    Picture,
+    Star,
+    CircleCheck,
+    Timer,
+    Operation
   },
   data() {
     return {
@@ -573,41 +659,140 @@ export default {
 <style scoped>
 .equipment-container {
   padding: 20px;
+  background-color: #f5f7fa;
+  min-height: 100vh;
 }
-.header {
+
+.page-title {
+  margin-bottom: 30px;
+  font-size: 24px;
+  color: #303133;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-left: 15px;
+  border-left: 4px solid #409EFF;
+}
+
+.page-title .el-icon {
+  font-size: 24px;
+  color: #409EFF;
+}
+
+.attendance-section {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.05);
+}
+
+.section-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #ebeef5;
 }
-.user-info {
-  display: flex;
-  align-items: center;
+
+.section-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #303133;
 }
-.search-form {
+
+.query-form {
   margin-bottom: 20px;
   padding: 20px;
-  background-color: #fff;
-  border-radius: 4px;
-  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+  background: #f5f7fa;
+  border-radius: 8px;
+  border: 1px solid #ebeef5;
 }
-.pagination-container {
+
+.form-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+:deep(.el-form-item) {
+  margin-bottom: 0;
+  flex: 1;
+  min-width: 200px;
+}
+
+:deep(.el-input__wrapper),
+:deep(.el-date-editor) {
+  width: 100%;
+}
+
+:deep(.el-table) {
+  margin-top: 20px;
+}
+
+.button-group {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+:deep(.el-button) {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.pagination {
   margin-top: 20px;
   display: flex;
   justify-content: flex-end;
 }
+
+:deep(.el-dialog) {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+:deep(.el-dialog__header) {
+  margin: 0;
+  padding: 20px;
+  background-color: #f5f7fa;
+  border-bottom: 1px solid #ebeef5;
+}
+
+:deep(.el-dialog__title) {
+  font-size: 16px;
+  font-weight: 600;
+  color: #303133;
+}
+
+:deep(.el-dialog__body) {
+  padding: 20px;
+}
+
+:deep(.el-dialog__footer) {
+  padding: 15px 20px;
+  border-top: 1px solid #ebeef5;
+}
+
 .avatar-uploader {
   border: 1px dashed #d9d9d9;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
   position: relative;
   overflow: hidden;
   width: 178px;
   height: 178px;
+  transition: all 0.3s;
 }
+
 .avatar-uploader:hover {
   border-color: #409EFF;
+  box-shadow: 0 2px 12px 0 rgba(64, 158, 255, 0.1);
 }
+
 .avatar-uploader-icon {
   font-size: 28px;
   color: #8c939d;
@@ -615,11 +800,29 @@ export default {
   height: 178px;
   text-align: center;
   line-height: 178px;
+  transition: all 0.3s;
 }
+
+.avatar-uploader:hover .avatar-uploader-icon {
+  color: #409EFF;
+}
+
 .avatar {
   width: 178px;
   height: 178px;
   display: block;
   object-fit: cover;
+  border-radius: 8px;
+}
+
+.table-header {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.table-header .el-icon {
+  font-size: 16px;
+  color: #606266;
 }
 </style> 

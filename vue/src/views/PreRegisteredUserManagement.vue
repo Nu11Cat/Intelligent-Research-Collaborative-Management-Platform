@@ -1,12 +1,19 @@
 <template>
   <div class="pre-registered-user-container">
-    <h2>预注册用户管理</h2>
+    <h2>
+      <el-icon><UserFilled /></el-icon>
+      预注册用户管理
+    </h2>
     
     <!-- 查询表单 -->
     <div class="query-form">
       <el-form :inline="true" :model="queryForm" class="demo-form-inline">
         <el-form-item label="用户名">
-          <el-input v-model="queryForm.username" placeholder="请输入用户名" clearable />
+          <el-input v-model="queryForm.username" placeholder="请输入用户名" clearable>
+            <template #prefix>
+              <el-icon><User /></el-icon>
+            </template>
+          </el-input>
         </el-form-item>
         <el-form-item label="创建时间">
           <el-date-picker
@@ -17,11 +24,21 @@
             end-placeholder="结束日期"
             value-format="YYYY-MM-DD"
             @change="handleDateRangeChange"
-          />
+          >
+            <template #prefix>
+              <el-icon><Calendar /></el-icon>
+            </template>
+          </el-date-picker>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="handleQuery">查询</el-button>
-          <el-button @click="resetQuery">重置</el-button>
+          <el-button type="primary" @click="handleQuery">
+            <el-icon><Search /></el-icon>
+            查询
+          </el-button>
+          <el-button @click="resetQuery">
+            <el-icon><Refresh /></el-icon>
+            重置
+          </el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -29,30 +46,71 @@
     <!-- 预注册用户列表 -->
     <div class="user-list">
       <div class="table-header">
-        <el-button type="primary" @click="handleAdd">新增预注册用户</el-button>
+        <el-button type="primary" @click="handleAdd">
+          <el-icon><Plus /></el-icon>
+          新增预注册用户
+        </el-button>
       </div>
-      <el-table :data="users" style="width: 100%">
-        <el-table-column prop="username" label="用户名" width="180" />
-        <el-table-column label="组别" width="180">
-          <template #default="scope">
-            {{ groups.find(g => g.id === scope.row.groupId)?.name || scope.row.groupId }}
+      <el-table 
+        :data="users" 
+        style="width: 100%" 
+        border
+        v-loading="loading"
+        :stripe="true"
+      >
+        <el-table-column prop="username" label="用户名" min-width="150" align="center">
+          <template #header>
+            <el-icon><User /></el-icon>
+            <span style="margin-left: 4px">用户名</span>
           </template>
         </el-table-column>
-        <el-table-column prop="status" label="状态" width="120">
+        <el-table-column label="组别" min-width="150" align="center">
+          <template #header>
+            <el-icon><Folder /></el-icon>
+            <span style="margin-left: 4px">组别</span>
+          </template>
           <template #default="scope">
-            <el-tag :type="scope.row.status === '未注册' ? 'warning' : 'success'">
+            <el-tag size="small" effect="plain" type="info">
+              {{ groups.find(g => g.id === scope.row.groupId)?.name || scope.row.groupId }}
+            </el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column prop="status" label="状态" min-width="120" align="center">
+          <template #header>
+            <el-icon><InfoFilled /></el-icon>
+            <span style="margin-left: 4px">状态</span>
+          </template>
+          <template #default="scope">
+            <el-tag 
+              size="small" 
+              :type="scope.row.status === '未注册' ? 'warning' : 'success'"
+              effect="light"
+            >
               {{ scope.row.status }}
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="createdAt" label="创建时间" width="180">
+        <el-table-column prop="createdAt" label="创建时间" min-width="180" align="center">
+          <template #header>
+            <el-icon><Timer /></el-icon>
+            <span style="margin-left: 4px">创建时间</span>
+          </template>
           <template #default="scope">
-            {{ new Date(scope.row.createdAt).toLocaleString() }}
+            <el-tag size="small" effect="plain" type="info">
+              {{ new Date(scope.row.createdAt).toLocaleString() }}
+            </el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="200">
+        <el-table-column label="操作" min-width="120" align="center">
+          <template #header>
+            <el-icon><Operation /></el-icon>
+            <span style="margin-left: 4px">操作</span>
+          </template>
           <template #default="scope">
-            <el-button type="danger" link @click="handleDelete(scope.row)">删除</el-button>
+            <el-button type="danger" link @click="handleDelete(scope.row)">
+              <el-icon><Delete /></el-icon>
+              删除
+            </el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -105,9 +163,35 @@
 <script>
 import axios from 'axios'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import {
+  User,
+  UserFilled,
+  Search,
+  Refresh,
+  Plus,
+  Delete,
+  Folder,
+  InfoFilled,
+  Timer,
+  Operation,
+  Calendar
+} from '@element-plus/icons-vue'
 
 export default {
   name: 'PreRegisteredUserManagement',
+  components: {
+    User,
+    UserFilled,
+    Search,
+    Refresh,
+    Plus,
+    Delete,
+    Folder,
+    InfoFilled,
+    Timer,
+    Operation,
+    Calendar
+  },
   data() {
     return {
       users: [],
@@ -123,7 +207,8 @@ export default {
       userForm: {
         username: '',
         groupId: ''
-      }
+      },
+      loading: false
     }
   },
   created() {
@@ -275,31 +360,138 @@ export default {
 <style scoped>
 .pre-registered-user-container {
   padding: 20px;
-}
+  background-color: #f5f7fa;
+  min-height: 100%;
 
-.query-form {
-  margin-bottom: 20px;
-  background: #fff;
-  padding: 20px;
-  border-radius: 4px;
-  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
-}
+  h2 {
+    margin-bottom: 30px;
+    font-size: 24px;
+    color: #303133;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    
+    &::before {
+      content: '';
+      display: inline-block;
+      width: 4px;
+      height: 24px;
+      background-color: #409eff;
+      margin-right: 12px;
+      border-radius: 2px;
+    }
+  }
 
-.user-list {
-  margin-top: 20px;
-  background: #fff;
-  padding: 20px;
-  border-radius: 4px;
-  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
-}
+  .query-form {
+    margin-bottom: 20px;
+    background: #ffffff;
+    padding: 24px;
+    border-radius: 8px;
+    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.05);
 
-.table-header {
-  margin-bottom: 20px;
-}
+    .el-form-item {
+      margin-bottom: 0;
+      margin-right: 20px;
+    }
 
-.pagination {
-  margin-top: 20px;
-  display: flex;
-  justify-content: flex-end;
+    .el-input,
+    .el-date-picker {
+      width: 240px;
+    }
+
+    .el-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+  }
+
+  .user-list {
+    background: #ffffff;
+    padding: 24px;
+    border-radius: 8px;
+    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.05);
+
+    .table-header {
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      h3 {
+        margin: 0;
+        font-size: 18px;
+        color: #303133;
+        font-weight: 600;
+      }
+    }
+
+    .el-table {
+      border-radius: 8px;
+      overflow: hidden;
+
+      th {
+        background-color: #f5f7fa !important;
+        color: #606266;
+        font-weight: 600;
+      }
+
+      td {
+        padding: 12px 0;
+      }
+
+      .el-table__row {
+        transition: all 0.3s ease;
+
+        &:hover {
+          background-color: #f5f7fa !important;
+        }
+      }
+    }
+
+    .el-tag {
+      border-radius: 4px;
+      padding: 0 8px;
+      height: 24px;
+      line-height: 24px;
+    }
+
+    .pagination {
+      margin-top: 20px;
+      display: flex;
+      justify-content: flex-end;
+      padding: 16px;
+      background-color: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.05);
+    }
+  }
+
+  .el-dialog {
+    border-radius: 8px;
+    overflow: hidden;
+
+    .el-dialog__header {
+      margin: 0;
+      padding: 20px 24px;
+      background-color: #f5f7fa;
+      border-bottom: 1px solid #ebeef5;
+
+      .el-dialog__title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #303133;
+      }
+    }
+
+    .el-dialog__body {
+      padding: 24px;
+    }
+
+    .el-dialog__footer {
+      padding: 16px 24px;
+      border-top: 1px solid #ebeef5;
+    }
+  }
 }
 </style> 
