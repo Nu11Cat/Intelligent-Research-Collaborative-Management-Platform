@@ -68,7 +68,7 @@
 </template>
 
 <script>
-import axios from 'axios'
+import request from '@/utils/request'
 
 export default {
   name: 'UserRegister',
@@ -87,7 +87,7 @@ export default {
       }
       
       try {
-        const response = await axios.post('http://localhost:8080/user/register', {
+        const response = await request.post('/user/register', {
           username: this.username,
           password: this.password
         })

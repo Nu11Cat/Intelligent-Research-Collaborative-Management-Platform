@@ -287,7 +287,7 @@
 </template>
 
 <script>
-import axios from 'axios'
+import request from '@/utils/request'
 import { ElMessage } from 'element-plus'
 import {
   Calendar,
@@ -367,13 +367,7 @@ export default {
           params.end = this.unauditedDateRange[1]
         }
         
-        const token = localStorage.getItem('token')
-        const response = await axios.get('http://localhost:8080/leave/getUnaudited', { 
-          params,
-          headers: {
-            'token': token
-          }
-        })
+        const response = await request.get('/leave/getUnaudited', { params })
         if (response.data.code === 1) {
           this.unauditedLeaves = response.data.data.rows
           this.unauditedTotal = response.data.data.total
@@ -397,13 +391,7 @@ export default {
           params.end = this.allDateRange[1]
         }
         
-        const token = localStorage.getItem('token')
-        const response = await axios.get('http://localhost:8080/leave/getAll', { 
-          params,
-          headers: {
-            'token': token
-          }
-        })
+        const response = await request.get('/leave/getAll', { params })
         if (response.data.code === 1) {
           this.allLeaves = response.data.data.rows
           this.allTotal = response.data.data.total
@@ -487,15 +475,10 @@ export default {
     // 提交审核
     async submitApprove() {
       try {
-        const token = localStorage.getItem('token')
-        const response = await axios.post('http://localhost:8080/leave/approve', {
+        const response = await request.post('/leave/approve', {
           id: this.approveForm.id,
           status: this.approveType === 'approve' ? 1 : 2,
           approverComment: this.approveForm.approverComment
-        }, {
-          headers: {
-            'token': token
-          }
         })
         
         if (response.data.code === 1) {

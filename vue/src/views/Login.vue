@@ -54,7 +54,7 @@
 </template>
 
 <script>
-import axios from 'axios'
+import request from '@/utils/request'
 
 export default {
   name: 'UserLogin',
@@ -74,7 +74,7 @@ export default {
   methods: {
     async handleLogin() {
       try {
-        const response = await axios.post('http://localhost:8080/user/login', {
+        const response = await request.post('/user/login', {
           username: this.username,
           password: this.password
         })
@@ -87,7 +87,7 @@ export default {
           localStorage.setItem('token', token)
           
           // 获取用户角色
-          const roleResponse = await axios.get('http://localhost:8080/user/getRole', {
+          const roleResponse = await request.get('/user/getRole', {
             headers: {
               'token': token
             }

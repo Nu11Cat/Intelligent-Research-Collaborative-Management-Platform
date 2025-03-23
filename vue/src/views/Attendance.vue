@@ -113,7 +113,7 @@
         <el-table-column prop="checkIn" label="日期" min-width="150" align="center">
           <template #default="scope">
             <el-tag size="small" effect="plain" type="info">
-              {{ scope.row.checkIn ? new Date(scope.row.checkIn).toISOString().split('T')[0] : '-' }}
+              {{ scope.row.checkIn ? new Date(new Date(scope.row.checkIn).getTime() + 8 * 60 * 60 * 1000).toISOString().split('T')[0] : '-' }}
             </el-tag>
           </template>
         </el-table-column>
@@ -261,8 +261,7 @@
 
 <script>
 import { ElMessage } from 'element-plus'
-import request from '../utils/request'
-import axios from 'axios'
+import request from '@/utils/request'
 import {
   Timer,
   CircleCheckFilled,
@@ -496,7 +495,7 @@ export default {
 
       try {
         const token = localStorage.getItem('token')
-        const response = await axios.post('http://localhost:8080/leave/apply', this.leaveForm, {
+        const response = await request.post('/leave/apply', this.leaveForm, {
           headers: {
             'token': token
           }
@@ -524,7 +523,7 @@ export default {
         }
         
         const token = localStorage.getItem('token')
-        const response = await axios.get('http://localhost:8080/leave/getMyLeave', {
+        const response = await request.get('/leave/getMyLeave', {
           params,
           headers: {
             'token': token

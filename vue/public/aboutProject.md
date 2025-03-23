@@ -1,91 +1,137 @@
-# 实验室管理系统
+# 智研协同管理平台 (Intelligent Research Collaboration Platform)
 
-## 项目简介
-本系统是一个基于Vue.js和Spring Boot的实验室管理系统，旨在提供实验室日常运营的全面解决方案。
+[Nu11Cat/Intelligent-Research-Collaborative-Management-Platform](https://github.com/Nu11Cat/Intelligent-Research-Collaborative-Management-Platform)
 
-## 主要功能
-1. 用户管理
-   - 用户注册
-   - 用户登录
-   - 角色权限管理
+点个 Star 吧 🌟
 
-2. 考勤管理
-   - 签到签退
-   - 考勤记录查询
-   - 考勤统计
+如果你觉得这个项目有帮助，请给我一个星星 ⭐️，您的支持是我继续前进的动力！
 
-3. 器材管理
-   - 器材借用
-   - 器材归还
-   - 器材库存管理
+谢谢！🙏
 
-4. 招募管理
-   - 发布招募信息
-   - 查看招募列表
-   - 申请加入
+---
 
-5. 小组管理
-   - 创建小组
-   - 管理小组成员
-   - 小组活动记录
 
-## 技术栈
-- 前端：Vue.js 3 + Element Plus
-- 后端：Spring Boot + MyBatis
-- 数据库：MySQL
-- 认证：JWT
 
-## 开发团队
-- 前端开发：XXX
-- 后端开发：XXX
-- 数据库设计：XXX
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.2.0-green.svg)
+![Vue.js](https://img.shields.io/badge/Vue.js-3.x-brightgreen.svg)
 
-## 版本信息
+一个现代化的协同管理平台，专为科研机构、企业研发部门、创新中心等组织打造。通过数字化转型提升管理效率，促进团队协作，实现智能化管理。
 
-# 实验室管理系统
 
-## 项目简介
 
-本系统是一个基于Vue.js和Spring Boot的实验室管理系统，旨在提供实验室日常运营的全面解决方案。
+## 🎯 应用场景
 
-## 主要功能
+- **科研机构**: 高校实验室、研究所、科研中心的日常运营管理
+- **企业研发**: 企业研发部门、技术中心的人员和设备管理
+- **创新中心**: 众创空间、孵化器、创新中心的协同办公
+- **教育机构**: 教学实验室、实训中心的资源调配
+- **技术团队**: 各类技术团队的日常协作管理
 
-1. 用户管理
-   - 用户注册
-   - 用户登录
-   - 角色权限管理
+## ✨ 核心优势
 
-2. 考勤管理
-   - 签到签退
-   - 考勤记录查询
-   - 考勤统计
+- 📱 **现代化界面**: 清晰直观的用户界面，支持响应式布局
+- 🔒 **安全可靠**: 完善的权限管理，数据加密传输
+- 🚀 **高效协作**: 实时的任务协同，快速的信息流转
+- 📊 **数据分析**: 直观的数据统计，科学的决策支持
+- 🔌 **易于集成**: 标准化接口，支持与其他系统对接
 
-3. 器材管理
-   - 器材借用
-   - 器材归还
-   - 器材库存管理
+## 🎨 功能特点
 
-4. 招募管理
-   - 发布招募信息
-   - 查看招募列表
-   - 申请加入
+- 🔐 **用户管理**
+  - 基于角色的权限控制（管理员、组长、成员）
+  - JWT token 认证
+  - 用户注册与登录
+  - 组织架构管理
+- ⏰ **考勤管理**
+  - 智能签到签退
+  - 考勤记录查询
+  - 考勤统计报表
+  - 异常考勤提醒
+- 📝 **请假管理**
+  - 在线请假申请
+  - 多级审批流程
+  - 请假记录追踪
+  - 统计分析报表
+- 🔧 **设备管理**
+  - 设备借用归还
+  - 使用记录追踪
+  - 设备状态监控
+  - 维护提醒
 
-5. 小组管理
-   - 创建小组
-   - 管理小组成员
-   - 小组活动记录
+## 🚀 技术栈
 
-## 技术栈
+### 后端
 
-- 前端：Vue.js 3 + Element Plus
-- 后端：Spring Boot + MyBatis
-- 数据库：MySQL
-- 认证：JWT
+- Spring Boot 3.2.0
+- MyBatis
+- MySQL
+- JWT
+- Maven
 
-## 开发团队
+### 前端
 
-- 前端开发：XXX
-- 后端开发：XXX
-- 数据库设计：XXX
+- Vue.js 3.x
+- Element Plus
+- Axios
+- Vue Router
+- Vuex
 
-## 版本信息
+## 📖 部署指南
+
+详细的部署说明请参考 [部署文档](/document/部署方法.md)
+
+## 📁 项目结构
+
+```
+├── sckj/                   # 后端项目目录
+│   ├── src/               # 源代码
+│   │   ├── main/
+│   │   │   ├── java/     # Java 代码
+│   │   │   └── resources/# 配置文件
+│   └── pom.xml           # Maven 配置
+│
+├── vue/                   # 前端项目目录
+│   ├── src/              # 源代码
+│   │   ├── api/         # API 接口
+│   │   ├── components/  # 组件
+│   │   ├── views/       # 页面
+│   │   └── router/      # 路由配置
+│   └── package.json     # NPM 配置
+│
+└── docs/                 # 文档
+    ├── api.md           # API 文档
+    └── sckj.sql         # 数据库文件
+```
+
+## 📚 API 文档
+
+详细的 API 文档请参考 [API 文档](docs/api.md)
+
+## 🤝 贡献指南
+
+1. Fork 本仓库
+2. 创建特性分支 (`git checkout -b feature/AmazingFeature`)
+3. 提交改动 (`git commit -m 'Add some AmazingFeature'`)
+4. 推送到分支 (`git push origin feature/AmazingFeature`)
+5. 提交 Pull Request
+
+## 📄 许可证
+
+本项目采用 MIT 许可证 - 查看 [LICENSE](LICENSE) 文件了解详情
+
+## 📞 联系方式
+
+项目维护者: [nullcat]([Nu11Cat (Your bug has been cat-tured—meow-gnificent!)](https://github.com/Nu11Cat))
+
+## 🙏 致谢
+
+感谢所有为这个项目做出贡献的开发者们！
+
+## 🌟 为什么选择智研协同管理平台？
+
+- 🎯 **专业性**: 针对科研、研发场景深度优化
+- 🔄 **灵活性**: 适应不同组织的管理需求
+- 📈 **可扩展**: 支持自定义功能模块
+- 💡 **创新性**: 持续更新迭代，跟进最新技术
+- 🤝 **协作性**: 促进团队高效协同工作 

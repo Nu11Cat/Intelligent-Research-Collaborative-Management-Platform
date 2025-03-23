@@ -17,6 +17,8 @@
 </template>
 
 <script>
+import request from '@/utils/request'
+
 export default {
   data() {
     return {
@@ -35,7 +37,7 @@ export default {
           return
         }
 
-        const response = await fetch('http://localhost:8080/api/user/onself', {
+        const response = await request.get('/user/onself', {
           headers: {
             'Authorization': `Bearer ${token}`
           }

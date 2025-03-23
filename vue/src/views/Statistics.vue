@@ -141,7 +141,7 @@
 </template>
 
 <script>
-import axios from 'axios'
+import request from '@/utils/request'
 import { ElMessage } from 'element-plus'
 import * as echarts from 'echarts'
 import {
@@ -184,7 +184,7 @@ export default {
     async fetchStatistics() {
       try {
         const token = localStorage.getItem('token')
-        const response = await axios.get('http://localhost:8080/user/groupTodayStatus', {
+        const response = await request.get('/user/groupTodayStatus', {
           headers: {
             'token': token
           }

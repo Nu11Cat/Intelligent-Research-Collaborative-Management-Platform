@@ -291,7 +291,7 @@
 </template>
 
 <script>
-import axios from 'axios'
+import request from '@/utils/request'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import {
   Folder,
@@ -392,7 +392,7 @@ export default {
           params.end = this.queryForm.dateRange[1]
         }
 
-        const response = await axios.get('http://localhost:8080/group/getAll', {
+        const response = await request.get('/group/getAll', {
           params,
           headers: {
             'token': token
@@ -419,7 +419,7 @@ export default {
           for (const userId of adminIds) {
             try {
               console.log('正在获取用户信息，userId:', userId)
-              const userResponse = await axios.get(`http://localhost:8080/user/getById/${userId}`, {
+              const userResponse = await request.get(`/user/getById/${userId}`, {
                 headers: {
                   'token': token
                 }
@@ -515,7 +515,7 @@ export default {
         })
         
         const token = localStorage.getItem('token')
-        const response = await axios.delete('http://localhost:8080/group/delete', {
+        const response = await request.delete('/group/delete', {
           data: {
             name: row.name
           },
@@ -554,7 +554,7 @@ export default {
         
         if (this.groupForm.id) {
           // 编辑
-          response = await axios.post('http://localhost:8080/group/update', submitData, {
+          response = await request.post('/group/update', submitData, {
             headers: {
               'token': token,
               'Content-Type': 'application/json'
@@ -562,7 +562,7 @@ export default {
           })
         } else {
           // 新增
-          response = await axios.put('http://localhost:8080/group/add', submitData, {
+          response = await request.put('/group/add', submitData, {
             headers: {
               'token': token,
               'Content-Type': 'application/json'
@@ -591,7 +591,7 @@ export default {
           size: this.pageSize,
           ...this.userQueryForm
         }
-        const response = await axios.get('http://localhost:8080/user/getAll', {
+        const response = await request.get('/user/getAll', {
           params,
           headers: {
             'token': token

@@ -82,7 +82,7 @@
 
 <script>
 import eventBus from '../utils/eventBus'
-import axios from 'axios'
+import request from '@/utils/request'
 import {
   House,
   User,
@@ -223,7 +223,7 @@ export default {
     async getUserInfo() {
       try {
         const token = localStorage.getItem('token')
-        const response = await axios.get('http://localhost:8080/user/onself', {
+        const response = await request.get('/user/onself', {
           headers: {
             'token': token
           }
@@ -252,7 +252,7 @@ export default {
     async handleChangePassword() {
       try {
         await this.$refs.passwordFormRef.validate()
-        const response = await axios.post('http://localhost:8080/user/updatePassword', this.passwordForm, {
+        const response = await request.post('/user/updatePassword', this.passwordForm, {
           headers: {
             'token': localStorage.getItem('token')
           }

@@ -161,7 +161,7 @@
 </template>
 
 <script>
-import axios from 'axios'
+import request from '@/utils/request'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import {
   User,
@@ -233,7 +233,7 @@ export default {
           params.end = this.queryForm.dateRange[1]
         }
 
-        const response = await axios.get('http://localhost:8080/preRegisteredUser/getAll', {
+        const response = await request.get('/preRegisteredUser/getAll', {
           params,
           headers: {
             'token': token
@@ -253,7 +253,7 @@ export default {
     async getGroups() {
       try {
         const token = localStorage.getItem('token')
-        const response = await axios.get('http://localhost:8080/group/getAll', {
+        const response = await request.get('/group/getAll', {
           params: {
             page: 1,
             pageSize: 100 // 获取所有小组
@@ -307,7 +307,7 @@ export default {
         })
         
         const token = localStorage.getItem('token')
-        const response = await axios.delete('http://localhost:8080/preRegisteredUser/delete', {
+        const response = await request.delete('/preRegisteredUser/delete', {
           data: {
             username: row.username
           },
@@ -332,7 +332,7 @@ export default {
     async handleSubmit() {
       try {
         const token = localStorage.getItem('token')
-        const response = await axios.put('http://localhost:8080/preRegisteredUser/add', {
+        const response = await request.put('/preRegisteredUser/add', {
           username: this.userForm.username,
           groupId: this.userForm.groupId
         }, {

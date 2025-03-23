@@ -26,9 +26,11 @@
       <el-table-column prop="title" label="招募标题" />
       <el-table-column prop="description" label="描述" />
       <el-table-column prop="contact" label="联系方式" width="180" />
-      <el-table-column prop="createdAt" label="发布时间" width="180">
+      <el-table-column prop="createTime" label="发布日期" min-width="150" align="center">
         <template #default="scope">
-          {{ formatDate(scope.row.createdAt) }}
+          <el-tag size="small" effect="plain" type="info">
+            {{ scope.row.createTime ? new Date(scope.row.createTime).toISOString().split('T')[0] : '-' }}
+          </el-tag>
         </template>
       </el-table-column>
       <el-table-column label="操作" width="200">
@@ -107,7 +109,7 @@
 </template>
 
 <script>
-import axios from 'axios'
+import request from '@/utils/request'
 import { ElMessage } from 'element-plus'
 
 export default {
@@ -155,7 +157,7 @@ export default {
           params.end = this.formatDate(this.queryForm.dateRange[1])
         }
 
-        const response = await axios.get('http://localhost:8080/teamRecruitment/getAll', {
+        const response = await request.get('/teamRecruitment/getAll', {
           params,
           headers: {
             'token': token
@@ -211,7 +213,7 @@ export default {
     async handleEdit(row) {
       try {
         const token = localStorage.getItem('token')
-        const response = await axios.get(`http://localhost:8080/teamRecruitment/getById?teamRecruitmentId=${row.id}`, {
+        const response = await request.get(`/teamRecruitment/getById?teamRecruitmentId=${row.id}`, {
           headers: {
             'token': token
           }
@@ -236,7 +238,7 @@ export default {
     async confirmDelete() {
       try {
         const token = localStorage.getItem('token')
-        const response = await axios.delete(`http://localhost:8080/teamRecruitment/delete?teamRecruitmentId=${this.currentRecruitment.id}`, {
+        const response = await request.delete(`/teamRecruitment/delete?teamRecruitmentId=${this.currentRecruitment.id}`, {
           headers: {
             'token': token
           }
@@ -258,12 +260,12 @@ export default {
       try {
         const token = localStorage.getItem('token')
         const url = this.dialogType === 'add' 
-          ? 'http://localhost:8080/teamRecruitment/add'
-          : 'http://localhost:8080/teamRecruitment/update'
+          ? '/teamRecruitment/add'
+          : '/teamRecruitment/update'
         
         const method = this.dialogType === 'add' ? 'put' : 'post'
         
-        const response = await axios[method](url, this.recruitmentForm, {
+        const response = await request[method](url, this.recruitmentForm, {
           headers: {
             'token': token,
             'Content-Type': 'application/json'

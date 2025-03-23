@@ -303,7 +303,7 @@
 </template>
 
 <script>
-import axios from 'axios'
+import request from '@/utils/request'
 import { ElMessage } from 'element-plus'
 import { Plus, Box, Search, Refresh, Calendar, Document, Edit, Delete, Picture, Star, CircleCheck, Timer, Operation } from '@element-plus/icons-vue'
 
@@ -368,7 +368,7 @@ export default {
     async getUserRole() {
       try {
         const token = localStorage.getItem('token')
-        const response = await axios.get('http://localhost:8080/user/getRole', {
+        const response = await request.get('/user/getRole', {
           headers: {
             'token': token
           }
@@ -403,7 +403,7 @@ export default {
         }
 
         console.log('发送请求参数:', params)
-        const response = await axios.get('http://localhost:8080/equipment', {
+        const response = await request.get('/equipment', {
           params,
           headers: {
             'token': token
@@ -473,7 +473,7 @@ export default {
     async handleBorrow(row) {
       try {
         const token = localStorage.getItem('token')
-        const response = await axios.post(`http://localhost:8080/equipment/borrow?equipmentId=${row.id}`, null, {
+        const response = await request.post(`/equipment/borrow?equipmentId=${row.id}`, null, {
           headers: {
             'token': token,
             'Content-Type': 'application/json'
@@ -494,7 +494,7 @@ export default {
     async handleReturn(row) {
       try {
         const token = localStorage.getItem('token')
-        const response = await axios.post(`http://localhost:8080/equipment/return?equipmentId=${row.id}`, null, {
+        const response = await request.post(`/equipment/return?equipmentId=${row.id}`, null, {
           headers: {
             'token': token,
             'Content-Type': 'application/json'
@@ -532,7 +532,7 @@ export default {
           params.end = this.queryForm.dateRange[1]
         }
 
-        const response = await axios.get('http://localhost:8080/equipment/borrowRecords', {
+        const response = await request.get('/equipment/borrowRecords', {
           params,
           headers: {
             'token': token
@@ -581,7 +581,7 @@ export default {
     async confirmDelete() {
       try {
         const token = localStorage.getItem('token')
-        const response = await axios.delete(`http://localhost:8080/equipment/delete?equipmentId=${this.currentEquipment.id}`, {
+        const response = await request.delete(`/equipment/delete?equipmentId=${this.currentEquipment.id}`, {
           headers: {
             'token': token
           }
@@ -603,12 +603,12 @@ export default {
       try {
         const token = localStorage.getItem('token')
         const url = this.dialogType === 'add' 
-          ? 'http://localhost:8080/equipment/add'
-          : 'http://localhost:8080/equipment/update'
+          ? '/equipment/add'
+          : '/equipment/update'
         
         const method = this.dialogType === 'add' ? 'put' : 'post'
         
-        const response = await axios[method](url, this.equipmentForm, {
+        const response = await request[method](url, this.equipmentForm, {
           headers: {
             'token': token,
             'Content-Type': 'application/json'

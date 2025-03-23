@@ -257,7 +257,7 @@
 </template>
 
 <script>
-import axios from 'axios'
+import request from '@/utils/request'
 import { ElMessage } from 'element-plus'
 import { Folder, User, Calendar, Search, Refresh, Star, Timer } from '@element-plus/icons-vue'
 
@@ -306,7 +306,7 @@ export default {
           params.end = this.queryForm.dateRange[1]
         }
 
-        const response = await axios.get('http://localhost:8080/attendance/groupRecords', {
+        const response = await request.get('/attendance/groupRecords', {
           params,
           headers: {
             'token': token
@@ -342,7 +342,7 @@ export default {
           size: this.pageSize,
           ...this.userQueryForm
         }
-        const response = await axios.get('http://localhost:8080/user/getAll', {
+        const response = await request.get('/user/getAll', {
           params,
           headers: {
             'token': token

@@ -65,14 +65,10 @@
           </template>
         </el-table-column>
         <el-table-column prop="userName" label="用户名" min-width="150" align="center" />
-        <el-table-column prop="checkIn" label="签到时间" min-width="200" align="center">
+        <el-table-column prop="checkIn" label="签到时间" min-width="150" align="center">
           <template #default="scope">
-            <el-tag 
-              size="small" 
-              :type="scope.row.checkIn ? 'success' : 'danger'"
-              effect="light"
-            >
-              {{ scope.row.checkIn ? new Date(scope.row.checkIn).toLocaleString() : '未签到' }}
+            <el-tag size="small" effect="plain" type="info">
+              {{ scope.row.checkIn ? new Date(scope.row.checkIn).toISOString().split('T')[0] : '-' }}
             </el-tag>
           </template>
         </el-table-column>

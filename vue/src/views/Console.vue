@@ -125,7 +125,7 @@
 </template>
 
 <script>
-import axios from 'axios'
+import request from '@/utils/request'
 import * as echarts from 'echarts'
 import {
   UserFilled,
@@ -280,7 +280,7 @@ export default {
     },
     async fetchAdminData() {
       try {
-        const response = await axios.get('http://localhost:8080/user/admin/todayStatus', {
+        const response = await request.get('/user/admin/todayStatus', {
           headers: {
             'token': localStorage.getItem('token')
           }
