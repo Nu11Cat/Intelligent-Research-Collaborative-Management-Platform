@@ -11,6 +11,7 @@
         a.username as userName,
         a.check_in as checkIn,
         a.check_out as checkOut,
+        a.is_leave as isLeave,
         g.name as groupName
         FROM attendance a
         LEFT JOIN user_groups g ON a.group_id = g.id
@@ -29,6 +30,7 @@
         a.username as userName,
         a.check_in as checkIn,
         a.check_out as checkOut,
+        a.is_leave as isLeave,
         g.name as groupName
         FROM attendance a
         LEFT JOIN user_groups g ON a.group_id = g.id
@@ -48,6 +50,7 @@
         a.username as userName,
         a.check_in as checkIn,
         a.check_out as checkOut,
+        a.is_leave as isLeave,
         g.name as groupName
         FROM attendance a
         LEFT JOIN user_groups g ON a.group_id = g.id

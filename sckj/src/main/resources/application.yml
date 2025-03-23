@@ -11,3 +11,6 @@ mybatis:
     map-underscore-to-camel-case: true
     mapper-locations: classpath*:mapper/*.xml
     type-aliases-package: cn.nullcat.sckj.model
+server:
+  address: 0.0.0.0
+  port: 8080

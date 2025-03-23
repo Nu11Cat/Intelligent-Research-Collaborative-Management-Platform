@@ -170,17 +170,21 @@ public class AttendanceServiceImpl implements AttendanceService {
         LocalDate today = LocalDate.now();
         List<Attendance> todayRecords = attendanceMapper.getTodayGroupAttendance(groupIdNow, today);
 
-        // 4. 统计已签到人数
-        statusDTO.setCheckedInCount(todayRecords.size());
+        // 4. 统计已签到人数（减去请假人数）
+        long checkedInCount = todayRecords.stream()
+                .filter(record -> record.getIsLeave() == 0)
+                .count();
+        statusDTO.setCheckedInCount((int) checkedInCount);
 
-        // 5. 统计已签退人数
+        // 5. 统计已签退人数（减去请假人数）
         long checkedOutCount = todayRecords.stream()
-                .filter(record -> record.getCheckOut() != null)
+                .filter(record -> record.getCheckOut() != null && record.getIsLeave() == 0)
                 .count();
         statusDTO.setCheckedOutCount((int) checkedOutCount);
 
         // 6. 获取未签到人员名单
         Set<Integer> checkedInUserIds = todayRecords.stream()
+                .filter(record -> record.getIsLeave() == 0)
                 .map(Attendance::getUserId)
                 .collect(Collectors.toSet());
 
@@ -192,7 +196,7 @@ public class AttendanceServiceImpl implements AttendanceService {
 
         // 7. 获取未签退人员名单
         List<String> notCheckedOutUsers = todayRecords.stream()
-                .filter(record -> record.getCheckOut() == null)
+                .filter(record -> record.getCheckOut() == null && record.getIsLeave() == 0)
                 .map(Attendance::getUserName)
                 .collect(Collectors.toList());
         statusDTO.setNotCheckedOutUsers(notCheckedOutUsers);
@@ -203,13 +207,13 @@ public class AttendanceServiceImpl implements AttendanceService {
                 .collect(Collectors.toList());
 
         // 9. 统计请假人数
-                statusDTO.setLeaveCount(leaveRecords.size());
+        statusDTO.setLeaveCount(leaveRecords.size());
 
         // 10. 获取请假人员名单
-                List<String> leaveUsers = leaveRecords.stream()
-                        .map(Attendance::getUserName)
-                        .collect(Collectors.toList());
-                statusDTO.setLeaveUsers(leaveUsers);
+        List<String> leaveUsers = leaveRecords.stream()
+                .map(Attendance::getUserName)
+                .collect(Collectors.toList());
+        statusDTO.setLeaveUsers(leaveUsers);
         return statusDTO;
     }
 
@@ -242,7 +246,7 @@ public class AttendanceServiceImpl implements AttendanceService {
             groupStat.setGroupName(group.getName());
             groupStats.add(groupStat);
 
-            // 累加总数
+            // 累加总数（不包含请假人数，因为 getTodayGroupAttendanceStatus 已经减去了请假人数）
             totalCheckedIn += groupStat.getCheckedInCount();
             totalCheckedOut += groupStat.getCheckedOutCount();
             totalLeave += groupStat.getLeaveCount();
