@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.nullcat.sckj.mapper.ArticlesMapper">
+
+
+    <select id="getByLibraryId" resultType="cn.nullcat.sckj.pojo.Articles">
+        SELECT
+        a.id,
+        a.title as title,
+        a.content as content,
+        a.created_at as createdAt,
+        a.updated_at as updatedAt,
+        a.library_id as libraryId
+        FROM articles a
+        <where>
+            <!-- 必须的查询条件：库 ID -->
+            <if test="libraryId != null">AND a.library_id = #{libraryId}</if>
+
+            <!-- 可选查询条件：标题模糊匹配 -->
+            <if test="title != null and title != ''">
+                AND a.title LIKE CONCAT('%', #{title}, '%')
+            </if>
+
+            <!-- 可选查询条件：日期范围 -->
+            <if test="begin != null and end != null">
+                AND DATE(a.created_at) BETWEEN #{begin} AND #{end}
+            </if>
+        </where>
+    </select>
+</mapper>

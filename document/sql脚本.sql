@@ -149,3 +149,31 @@ VALUES (1, 'nullcat', '1234', 'ADMIN', 1, NOW(), NOW());
 
 -- 重新启用外键检查
 SET FOREIGN_KEY_CHECKS = 1;
+
+
+
+CREATE TABLE resource_library (
+                                  id          INT PRIMARY KEY AUTO_INCREMENT,  -- 资源库ID
+                                  user_id     INT UNIQUE NOT NULL,             -- 关联用户（每人仅能拥有一个）
+                                  group_id    INT NOT NULL,                    -- 关联用户所属小组
+                                  created_at  DATETIME DEFAULT CURRENT_TIMESTAMP, -- 创建时间
+                                  updated_at  DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, -- 更新时间
+                                  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+                                  FOREIGN KEY (group_id) REFERENCES user_groups(id) ON DELETE CASCADE
+);
+
+
+
+CREATE TABLE articles (
+                          id           INT PRIMARY KEY AUTO_INCREMENT, -- 文章ID
+                          library_id   INT NOT NULL,                   -- 归属资源库
+                          title        VARCHAR(255) NOT NULL,          -- 文章标题
+                          content      TEXT NOT NULL,                  -- 文章内容（纯文本）
+                          author_id    INT NOT NULL,                   -- 发布人
+                          group_id     INT NOT NULL,                   -- 发布人所属小组
+                          created_at   DATETIME DEFAULT CURRENT_TIMESTAMP, -- 创建时间
+                          updated_at   DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, -- 更新时间
+                          FOREIGN KEY (library_id) REFERENCES resource_library(id) ON DELETE CASCADE,
+                          FOREIGN KEY (author_id) REFERENCES users(id) ON DELETE CASCADE,
+                          FOREIGN KEY (group_id) REFERENCES user_groups(id) ON DELETE CASCADE
+);

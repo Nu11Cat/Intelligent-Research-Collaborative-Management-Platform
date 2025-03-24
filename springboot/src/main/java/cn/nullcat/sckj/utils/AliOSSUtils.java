@@ -13,7 +13,7 @@ import java.util.UUID;
 @Component
 public class AliOSSUtils {
     //TODO
-    private String endpoint = "";
+    private String endpoint = ;
     private String accessKeyId = "";
     private String accessKeySecret = "";
     private String bucketName = "";

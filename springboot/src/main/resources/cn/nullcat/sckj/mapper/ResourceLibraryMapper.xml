@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.nullcat.sckj.mapper.ResourceLibraryMapper">
+
+
+    <select id="getAll" resultType="cn.nullcat.sckj.pojo.ResourceLibrary">
+        SELECT rl.*
+        FROM resource_library rl
+        <where>
+            <if test="username != null">
+                AND rl.user_id IN (SELECT id FROM users WHERE username LIKE CONCAT('%', #{username}, '%'))
+            </if>
+            <if test="groupName != null">
+                AND rl.user_id IN (
+                SELECT u.id FROM users u
+                JOIN user_groups ug ON u.group_id = ug.id
+                WHERE ug.group_name LIKE CONCAT('%', #{groupName}, '%')
+                )
+            </if>
+            <if test="begin != null and end != null">
+                AND rl.created_at BETWEEN #{begin} AND #{end}
+            </if>
+        </where>
+        ORDER BY rl.created_at DESC
+    </select>
+
+</mapper>
