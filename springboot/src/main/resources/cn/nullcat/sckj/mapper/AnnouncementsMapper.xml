@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.nullcat.sckj.mapper.AnnouncementsMapper">
+
+    <select id="getAll" resultType="cn.nullcat.sckj.pojo.Announcements">
+        select a.*, u.username as author
+        from announcements a
+        left join users u on a.created_by = u.id
+        <where>
+            <if test="title != null">AND a.title LIKE CONCAT('%', #{title}, '%')</if>
+            <if test="begin != null and end != null">AND DATE(a.created_at) BETWEEN #{begin} AND #{end}</if>
+        </where>
+        ORDER BY a.created_at DESC
+    </select>
+
+    <select id="get" parameterType="java.lang.Integer" resultType="cn.nullcat.sckj.pojo.Announcements">
+        <!-- 查询距当前时间最近的公告 -->
+        SELECT a.*
+        FROM announcements a
+        WHERE a.created_at = (SELECT MAX(created_at) FROM announcements)
+        AND NOT EXISTS (
+        <!-- 如果用户未领取该公告 -->
+        SELECT 1
+        FROM announcement_user au
+        WHERE au.user_id = #{userId}
+        AND au.announcement_id = a.id
+        )
+        LIMIT 1
+    </select>
+
+</mapper>

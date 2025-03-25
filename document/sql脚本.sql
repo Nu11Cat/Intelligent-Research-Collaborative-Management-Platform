@@ -177,3 +177,14 @@ CREATE TABLE articles (
                           FOREIGN KEY (author_id) REFERENCES users(id) ON DELETE CASCADE,
                           FOREIGN KEY (group_id) REFERENCES user_groups(id) ON DELETE CASCADE
 );
+
+
+CREATE TABLE announcement_user (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    announcement_id INT NOT NULL,
+    read_status BOOLEAN DEFAULT false,
+    read_time DATETIME,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (announcement_id) REFERENCES announcements(id)
+);
