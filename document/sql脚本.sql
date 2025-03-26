@@ -188,3 +188,16 @@ CREATE TABLE announcement_user (
     FOREIGN KEY (user_id) REFERENCES users(id),
     FOREIGN KEY (announcement_id) REFERENCES announcements(id)
 );
+
+
+CREATE TABLE feedback (
+    id INT PRIMARY KEY AUTO_INCREMENT,    -- 反馈ID
+    user_id INT NOT NULL,                 -- 用户ID（外键，关联users表）
+    content TEXT NOT NULL,                 -- 反馈内容
+    status ENUM('pending', 'resolved') DEFAULT 'pending',  -- 反馈状态（待处理/已解决）
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,  -- 反馈提交时间
+    resolved_at TIMESTAMP NULL,             -- 处理时间
+    admin_response TEXT NULL,               -- 管理员回复
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+

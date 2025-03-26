@@ -16,4 +16,6 @@ public class ResourceLibrary {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
+    private String userName;
+    private String groupName;
 }
