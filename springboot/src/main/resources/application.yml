@@ -4,6 +4,17 @@ spring:
     url: jdbc:mysql://localhost:3306/nullcatsckj
     username: root
     password: 1234
+  data:
+    redis:
+      host: 192.168.76.129
+      port: 6379
+      password: 1234
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+          max-wait: 100ms
 
 mybatis:
   configuration:
@@ -11,6 +22,4 @@ mybatis:
     map-underscore-to-camel-case: true
     mapper-locations: classpath*:mapper/*.xml
     type-aliases-package: cn.nullcat.sckj.model
-server:
-  address: 0.0.0.0
-  port: 8080
+

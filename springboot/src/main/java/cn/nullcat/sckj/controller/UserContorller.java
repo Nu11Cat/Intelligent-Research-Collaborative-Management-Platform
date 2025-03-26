@@ -10,8 +10,10 @@ import cn.nullcat.sckj.service.AttendanceService;
 import cn.nullcat.sckj.service.PreRegisteredUserService;
 import cn.nullcat.sckj.service.UserService;
 import cn.nullcat.sckj.utils.JwtUtils;
+import cn.nullcat.sckj.utils.TokenUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 import jakarta.servlet.http.HttpServletRequest;
@@ -30,6 +32,8 @@ public class UserContorller {
     private PreRegisteredUserService preRegisteredUserService;
     @Autowired
     private AttendanceService attendanceService;
+    @Autowired
+    private TokenUtils tokenUtils;
 
     /**
      * 账号登录
@@ -56,6 +60,7 @@ public class UserContorller {
         claims.put("username",username);
         claims.put("password",password);
         String jwt = JwtUtils.generateJwt(claims);
+        tokenUtils.saveToken(jwt, userId);
         return Result.success(jwt);
     }
 
@@ -113,9 +118,11 @@ public class UserContorller {
      * 退出登录
      * @return
      */
-    //TODO 用redis存储token黑名单，并设置过期时间，拦截器中添加黑名单检查
     @PostMapping("/logOut")
-    public Result logOut() {
+    public Result logOut(HttpServletRequest request) {
+        Integer userId = (Integer) request.getAttribute("userId");
+        tokenUtils.removeToken(userId);
+        userservice.clearUserCache(userId);
         return Result.success("退出成功");
     }
 

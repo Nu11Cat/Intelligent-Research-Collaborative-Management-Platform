@@ -8,15 +8,18 @@ import cn.nullcat.sckj.pojo.Users;
 import cn.nullcat.sckj.pojo.VO.UserVO;
 import cn.nullcat.sckj.service.PreRegisteredUserService;
 import cn.nullcat.sckj.service.UserService;
+import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Service
@@ -26,7 +29,8 @@ public class UserServiceImpl implements UserService {
     private UserMapper userMapper;
     @Autowired
     private PreRegisteredUserService preRegisteredUserService;
-
+    @Autowired
+    private RedisTemplate<String, String> redisTemplate;
     /**
      * 账号注册
      * @param userFormDTO
@@ -85,7 +89,8 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public Integer getGroupIdByUserId(Integer userIdNow) {
-        return userMapper.getGroupIdByUserId(userIdNow);
+        UserVO userVO = getById(userIdNow);
+        return userVO.getGroupId();
     }
 
     /**
@@ -95,7 +100,8 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public String getUsernameById(Integer userIdNow) {
-        return userMapper.getUsernameById(userIdNow);
+        UserVO userVO = getById(userIdNow);
+        return userVO.getUsername();
     }
 
     /**
@@ -105,7 +111,8 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public String getGroupnameById(Integer userIdNow) {
-        return userMapper.getGroupnameById(userIdNow);
+        UserVO userVO = getById(userIdNow);
+        return userVO.getGroupName();
     }
 
     /**
@@ -114,7 +121,8 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public String getPasswordById(Integer userIdNow) {
-        return userMapper.getPassWordById(userIdNow);
+        UserVO userVO = getById(userIdNow);
+        return userVO.getPassword();
     }
 
     /**
@@ -125,6 +133,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void updatePassword(String newPassword, Integer userIdNow) {
         userMapper.updatePassword(newPassword,userIdNow);
+        clearUserCache(userIdNow);
     }
 
     /**
@@ -134,16 +143,32 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public UserVO getById(Integer userIdNow) {
+        // 先从Redis获取
+        String key = "user:" + userIdNow;
+        String userJson = redisTemplate.opsForValue().get(key);
+        if (userJson != null) {
+            return JSON.parseObject(userJson, UserVO.class);
+        }
+
+        // Redis没有，从数据库获取
         Users users = userMapper.getById(userIdNow);
+        if (users == null) {
+            return null;
+        }
+
         UserVO userVO = new UserVO();
-        BeanUtils.copyProperties(users,userVO);
-        userVO.setGroupName(userMapper.getGroupnameById(userIdNow));
+        BeanUtils.copyProperties(users, userVO);
+
+        // 存入Redis，设置30分钟过期
+        redisTemplate.opsForValue().set(key, JSON.toJSONString(userVO), 30, TimeUnit.MINUTES);
+
         return userVO;
     }
 
     @Override
     public void changeRole(Integer id, String role) {
         userMapper.changeRole(id, role);
+        clearUserCache(id);
     }
 
     /**
@@ -177,5 +202,15 @@ public class UserServiceImpl implements UserService {
                 .collect(Collectors.toList());
 
         return new PageBean(p.getTotal(), voList);
+    }
+
+    /**
+     * 清除redis的用户信息
+     * @param userId
+     */
+    @Override
+    public void clearUserCache(Integer userId) {
+        String key = "user:" + userId;
+        redisTemplate.delete(key);
     }
 }

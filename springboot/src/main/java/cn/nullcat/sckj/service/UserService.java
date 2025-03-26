@@ -94,4 +94,10 @@ public interface UserService {
      * @return
      */
     PageBean getAll(Integer page, Integer pageSize, String username, String groupName, String role, LocalDate begin, LocalDate end);
+
+    /**
+     * 清楚redis的用户信息
+     * @param userId
+     */
+    void clearUserCache(Integer userId);
 }

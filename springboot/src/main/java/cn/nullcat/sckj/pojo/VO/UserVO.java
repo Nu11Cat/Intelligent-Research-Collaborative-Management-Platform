@@ -13,10 +13,10 @@ public class UserVO {
 
     private String username; // 用户名，唯一
 
-
+    private Integer groupId;
 
     private String groupName;
-
+    private String password;
     private Users.Role role; // 角色（组员、组长、超级管理员）
 
     private LocalDateTime createdAt; // 用户注册时间

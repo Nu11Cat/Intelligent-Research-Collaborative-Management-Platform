@@ -87,7 +87,6 @@ public interface UserMapper {
      * @param userIdNow
      * @return
      */
-    @Select("select * from users where id = #{userIdNow}")
     Users getById(Integer userIdNow);
 
     /**

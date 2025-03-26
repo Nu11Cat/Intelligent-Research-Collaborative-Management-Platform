@@ -50,8 +50,20 @@
         </where>
         ORDER BY a.created_at DESC
     </select>
-
-
+    <select id="getById" resultType="cn.nullcat.sckj.pojo.Users">
+        SELECT
+            a.id,
+            a.username,
+            a.password,
+            a.role,
+            a.group_id as groupId,
+            g.name as groupName,
+            a.created_at as createdAt,
+            a.updated_at as updatedAt
+        FROM users a
+                 LEFT JOIN user_groups g ON a.group_id = g.id
+        WHERE a.id = #{id}
+    </select>
 
 
 </mapper>
